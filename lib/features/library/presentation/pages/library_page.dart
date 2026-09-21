@@ -16,6 +16,8 @@ import '../../../search/presentation/widgets/search_song_tile.dart';
 import '../bloc/library_cubit.dart';
 import '../bloc/library_state.dart';
 import '../widgets/library_filter_chips.dart';
+import '../widgets/no_music_found_view.dart';
+import '../widgets/permission_denied_view.dart';
 
 CardDisplayItem _playlistToCard(PlaylistEntity playlist) => CardDisplayItem(
       id: playlist.id,
@@ -62,6 +64,12 @@ class LibraryPage extends StatelessWidget {
             return switch (state) {
               LibraryLoading() => const Center(child: CircularProgressIndicator()),
               LibraryError(:final message) => Center(child: Text('Something went wrong: $message')),
+              LibraryPermissionDenied(:final permanentlyDenied) => PermissionDeniedView(
+                  permanentlyDenied: permanentlyDenied,
+                  onRequestPermission: () => context.read<LibraryCubit>().requestPermission(),
+                  onOpenSettings: () => context.read<LibraryCubit>().openPermissionSettings(),
+                ),
+              LibraryLoaded(isEmpty: true) => const NoMusicFoundView(),
               LibraryLoaded() => _LibraryContent(state: state),
             };
           },

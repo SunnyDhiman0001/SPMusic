@@ -25,6 +25,7 @@ class LibraryLoaded extends LibraryState {
     required this.artists,
     required this.likedSongs,
     required this.recentlyPlayed,
+    required this.isEmpty,
   });
 
   final LibraryFilter filter;
@@ -33,6 +34,7 @@ class LibraryLoaded extends LibraryState {
   final List<ArtistEntity> artists;
   final List<SongEntity> likedSongs;
   final List<SongEntity> recentlyPlayed;
+  final bool isEmpty;
 
   LibraryLoaded copyWith({LibraryFilter? filter}) => LibraryLoaded(
         filter: filter ?? this.filter,
@@ -41,10 +43,21 @@ class LibraryLoaded extends LibraryState {
         artists: artists,
         likedSongs: likedSongs,
         recentlyPlayed: recentlyPlayed,
+        isEmpty: isEmpty,
       );
 
   @override
-  List<Object?> get props => [filter, playlists, albums, artists, likedSongs, recentlyPlayed];
+  List<Object?> get props =>
+      [filter, playlists, albums, artists, likedSongs, recentlyPlayed, isEmpty];
+}
+
+class LibraryPermissionDenied extends LibraryState {
+  const LibraryPermissionDenied({required this.permanentlyDenied});
+
+  final bool permanentlyDenied;
+
+  @override
+  List<Object?> get props => [permanentlyDenied];
 }
 
 class LibraryError extends LibraryState {
