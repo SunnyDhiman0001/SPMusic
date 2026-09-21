@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../music/domain/entities/song_entity.dart';
+import '../../data/services/audio_player_service.dart' show TrackMetadata;
 import '../../domain/entities/playback_status.dart';
 import '../../domain/entities/repeat_mode.dart';
 import '../../domain/repositories/player_repository.dart';
@@ -13,7 +14,9 @@ import 'player_state.dart';
 /// currently playing song. Registered as a singleton so the mini-player and
 /// full-player screens (built later) share the same instance.
 class PlayerCubit extends Cubit<PlayerState> {
-  PlayerCubit(this._repository) : super(const PlayerState()) {
+  PlayerCubit(this._repository, {Future<void> Function(String songId)? onPlaybackStarted})
+      : _onPlaybackStarted = onPlaybackStarted,
+        super(const PlayerState()) {
     _positionSubscription = _repository.positionStream.listen((position) {
       emit(state.copyWith(position: position));
     });
@@ -29,6 +32,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   final PlayerRepository _repository;
+  final Future<void> Function(String songId)? _onPlaybackStarted;
   final math.Random _random = math.Random();
 
   late final StreamSubscription<Duration> _positionSubscription;
@@ -127,7 +131,16 @@ class PlayerCubit extends Cubit<PlayerState> {
     if (song == null) return;
 
     try {
-      await _repository.loadAndPlay(song.audioUrl);
+      await _repository.loadAndPlay(
+        song.audioUrl,
+        TrackMetadata(
+          id: song.id,
+          title: song.title,
+          artist: song.artist,
+          album: song.album,
+        ),
+      );
+      await _onPlaybackStarted?.call(song.id);
     } catch (e) {
       emit(state.copyWith(status: PlaybackStatus.error, errorMessage: e.toString()));
     }

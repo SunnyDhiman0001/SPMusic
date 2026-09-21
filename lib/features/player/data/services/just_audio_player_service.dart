@@ -1,5 +1,6 @@
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
+import 'package:just_audio_background/just_audio_background.dart';
 
 import '../../domain/entities/playback_status.dart';
 import 'audio_player_service.dart';
@@ -44,12 +45,19 @@ class JustAudioPlayerService implements AudioPlayerService {
   }
 
   @override
-  Future<void> load(String url) async {
-    try {
-      await _player.setUrl(url);
-    } on Exception {
-      rethrow;
-    }
+  Future<void> load(String url, TrackMetadata metadata) async {
+    await _player.setAudioSource(
+      ja.AudioSource.uri(
+        Uri.parse(url),
+        tag: MediaItem(
+          id: metadata.id,
+          title: metadata.title,
+          artist: metadata.artist,
+          album: metadata.album,
+          artUri: metadata.artUri,
+        ),
+      ),
+    );
   }
 
   @override

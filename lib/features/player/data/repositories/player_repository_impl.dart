@@ -17,8 +17,8 @@ class PlayerRepositoryImpl implements PlayerRepository {
   Stream<PlaybackStatus> get statusStream => _service.statusStream;
 
   @override
-  Future<void> loadAndPlay(String url) async {
-    await _service.load(url);
+  Future<void> loadAndPlay(String url, TrackMetadata metadata) async {
+    await _service.load(url, metadata);
     await _service.play();
   }
 
