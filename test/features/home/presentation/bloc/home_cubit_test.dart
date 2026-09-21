@@ -15,7 +15,7 @@ const _song = SongEntity(
   artistId: 'ar1',
   album: 'Neon Horizon',
   albumId: 'al1',
-  artworkUrl: 'https://picsum.photos/seed/album1/400',
+  artworkId: 1,
   audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
   duration: Duration(minutes: 3, seconds: 24),
 );
@@ -24,7 +24,6 @@ const _playlist = PlaylistEntity(
   id: 'p1',
   name: 'Focus Flow',
   description: 'Steady beats.',
-  coverUrl: 'https://picsum.photos/seed/playlist1/400',
   songIds: ['s1'],
   creator: 'spmusic',
 );
@@ -32,7 +31,7 @@ const _playlist = PlaylistEntity(
 const _artist = ArtistEntity(
   id: 'ar1',
   name: 'Nova Wave',
-  imageUrl: 'https://picsum.photos/seed/artist1/400',
+  trackCount: 12,
 );
 
 class _FakeMusicRepository implements MusicRepository {
@@ -88,6 +87,12 @@ class _FakeMusicRepository implements MusicRepository {
 
   @override
   Future<void> toggleFavorite(String songId) async {}
+
+  @override
+  Future<void> recordPlayed(String songId) async {}
+
+  @override
+  Future<void> refresh() async {}
 }
 
 void main() {
@@ -110,7 +115,7 @@ void main() {
           .having((s) => s.madeForYou.single.title, 'madeForYou title', 'Focus Flow')
           .having((s) => s.trending.single.id, 'trending id', 's1')
           .having((s) => s.popularArtists.single.title, 'popularArtists title', 'Nova Wave')
-          .having((s) => s.popularArtists.single.subtitle, 'popularArtists subtitle', 'Artist'),
+          .having((s) => s.popularArtists.single.subtitle, 'popularArtists subtitle', '12 tracks'),
     ],
   );
 

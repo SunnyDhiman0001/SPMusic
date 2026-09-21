@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spmusic/features/music/domain/entities/song_entity.dart';
+import 'package:spmusic/features/player/data/services/audio_player_service.dart' show TrackMetadata;
 import 'package:spmusic/features/player/domain/entities/playback_status.dart';
 import 'package:spmusic/features/player/domain/entities/repeat_mode.dart';
 import 'package:spmusic/features/player/domain/repositories/player_repository.dart';
@@ -30,7 +31,7 @@ class FakePlayerRepository implements PlayerRepository {
   Stream<PlaybackStatus> get statusStream => _statusController.stream;
 
   @override
-  Future<void> loadAndPlay(String url) async {
+  Future<void> loadAndPlay(String url, TrackMetadata metadata) async {
     loadedUrls.add(url);
   }
 
@@ -72,7 +73,7 @@ const songA = SongEntity(
   artistId: 'a1',
   album: 'Album A',
   albumId: 'al1',
-  artworkUrl: 'art_a.png',
+  artworkId: 1,
   audioUrl: 'https://example.com/a.mp3',
   duration: Duration(minutes: 3),
 );
@@ -84,7 +85,7 @@ const songB = SongEntity(
   artistId: 'b1',
   album: 'Album B',
   albumId: 'bl1',
-  artworkUrl: 'art_b.png',
+  artworkId: 2,
   audioUrl: 'https://example.com/b.mp3',
   duration: Duration(minutes: 4),
 );

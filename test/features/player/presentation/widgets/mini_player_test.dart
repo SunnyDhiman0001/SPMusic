@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spmusic/features/music/domain/entities/song_entity.dart';
+import 'package:spmusic/features/player/data/services/audio_player_service.dart' show TrackMetadata;
 import 'package:spmusic/features/player/domain/entities/playback_status.dart';
 import 'package:spmusic/features/player/domain/repositories/player_repository.dart';
 import 'package:spmusic/features/player/presentation/bloc/player_cubit.dart';
@@ -25,7 +26,7 @@ class FakePlayerRepository implements PlayerRepository {
   Stream<PlaybackStatus> get statusStream => _statusController.stream;
 
   @override
-  Future<void> loadAndPlay(String url) async {}
+  Future<void> loadAndPlay(String url, TrackMetadata metadata) async {}
 
   @override
   Future<void> pause() async {}
@@ -53,7 +54,7 @@ const testSong = SongEntity(
   artistId: 'a1',
   album: 'Album A',
   albumId: 'al1',
-  artworkUrl: 'https://example.com/art.png',
+  artworkId: 1,
   audioUrl: 'https://example.com/a.mp3',
   duration: Duration(minutes: 3),
 );

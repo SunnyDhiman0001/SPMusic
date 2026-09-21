@@ -15,7 +15,7 @@ const _song1 = SongEntity(
   artistId: 'ar1',
   album: 'Neon Horizon',
   albumId: 'al1',
-  artworkUrl: 'https://picsum.photos/seed/album1/400',
+  artworkId: 1,
   audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
   duration: Duration(minutes: 3, seconds: 24),
 );
@@ -27,7 +27,7 @@ const _song2 = SongEntity(
   artistId: 'ar1',
   album: 'Neon Horizon',
   albumId: 'al1',
-  artworkUrl: 'https://picsum.photos/seed/album1/400',
+  artworkId: 1,
   audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
   duration: Duration(minutes: 2, seconds: 10),
 );
@@ -36,7 +36,6 @@ const _playlist = PlaylistEntity(
   id: 'p1',
   name: 'Chill Vibes',
   description: 'Relax',
-  coverUrl: 'https://picsum.photos/seed/playlist1/400',
   songIds: ['s1', 's2'],
   creator: 'sunny',
 );
@@ -105,6 +104,12 @@ class _FakeMusicRepository implements MusicRepository {
 
   @override
   Future<List<SongEntity>> getFavoriteSongs() => throw UnimplementedError();
+
+  @override
+  Future<void> recordPlayed(String songId) => throw UnimplementedError();
+
+  @override
+  Future<void> refresh() => throw UnimplementedError();
 }
 
 void main() {

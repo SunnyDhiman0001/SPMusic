@@ -26,7 +26,7 @@ class FakeAudioPlayerService implements AudioPlayerService {
   Stream<PlaybackStatus> get statusStream => _statusController.stream;
 
   @override
-  Future<void> load(String url) async {
+  Future<void> load(String url, TrackMetadata metadata) async {
     loadedUrls.add(url);
   }
 
@@ -65,7 +65,10 @@ void main() {
 
   group('PlayerRepositoryImpl', () {
     test('loadAndPlay calls load then play with the right url', () async {
-      await repository.loadAndPlay('https://example.com/song.mp3');
+      await repository.loadAndPlay(
+        'https://example.com/song.mp3',
+        const TrackMetadata(id: '1', title: 'Song', artist: 'Artist', album: 'Album'),
+      );
 
       expect(fakeService.loadedUrls, ['https://example.com/song.mp3']);
       expect(fakeService.playCalls, 1);

@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spmusic/features/library/presentation/bloc/library_cubit.dart';
 import 'package:spmusic/features/library/presentation/bloc/library_state.dart';
+import 'package:spmusic/features/music/data/services/music_permission_service.dart';
 import 'package:spmusic/features/music/domain/entities/album_entity.dart';
 import 'package:spmusic/features/music/domain/entities/artist_entity.dart';
 import 'package:spmusic/features/music/domain/entities/playlist_entity.dart';
@@ -15,7 +16,7 @@ const _song1 = SongEntity(
   artistId: 'ar1',
   album: 'Neon Horizon',
   albumId: 'al1',
-  artworkUrl: 'https://picsum.photos/seed/album1/400',
+  artworkId: 1,
   audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
   duration: Duration(minutes: 3, seconds: 24),
 );
@@ -27,7 +28,7 @@ const _song2 = SongEntity(
   artistId: 'ar1',
   album: 'Neon Horizon',
   albumId: 'al1',
-  artworkUrl: 'https://picsum.photos/seed/album1/400',
+  artworkId: 1,
   audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
   duration: Duration(minutes: 2, seconds: 10),
 );
@@ -36,7 +37,6 @@ const _playlist = PlaylistEntity(
   id: 'p1',
   name: 'Chill Vibes',
   description: 'Relax',
-  coverUrl: 'https://picsum.photos/seed/playlist1/400',
   songIds: ['s1', 's2'],
   creator: 'sunny',
 );
@@ -46,15 +46,25 @@ const _album = AlbumEntity(
   title: 'Neon Horizon',
   artistId: 'ar1',
   artistName: 'Nova Wave',
-  coverUrl: 'https://picsum.photos/seed/album1/400',
   songIds: ['s1', 's2'],
 );
 
 const _artist = ArtistEntity(
   id: 'ar1',
   name: 'Nova Wave',
-  imageUrl: 'https://picsum.photos/seed/artist1/400',
+  trackCount: 2,
 );
+
+class _FakeMusicPermissionService implements MusicPermissionService {
+  @override
+  Future<MusicPermissionStatus> check() async => MusicPermissionStatus.granted;
+
+  @override
+  Future<MusicPermissionStatus> request() async => MusicPermissionStatus.granted;
+
+  @override
+  Future<void> openSettings() async {}
+}
 
 class _FakeMusicRepository implements MusicRepository {
   bool shouldThrow = false;
@@ -90,7 +100,10 @@ class _FakeMusicRepository implements MusicRepository {
   }
 
   @override
-  Future<List<SongEntity>> getRecentlyPlayed() => throw UnimplementedError();
+  Future<List<SongEntity>> getRecentlyPlayed() async {
+    if (shouldThrow) throw Exception('boom');
+    return [_song1, _song2];
+  }
 
   @override
   Future<List<PlaylistEntity>> getMadeForYouPlaylists() => throw UnimplementedError();
@@ -121,18 +134,26 @@ class _FakeMusicRepository implements MusicRepository {
 
   @override
   Future<void> toggleFavorite(String songId) => throw UnimplementedError();
+
+  @override
+  Future<void> recordPlayed(String songId) => throw UnimplementedError();
+
+  @override
+  Future<void> refresh() => throw UnimplementedError();
 }
 
 void main() {
   late _FakeMusicRepository repository;
+  late MusicPermissionService permissionService;
 
   setUp(() {
     repository = _FakeMusicRepository();
+    permissionService = _FakeMusicPermissionService();
   });
 
   blocTest<LibraryCubit, LibraryState>(
     'emits [LibraryLoading, LibraryLoaded] with correct lists and default filter',
-    build: () => LibraryCubit(repository),
+    build: () => LibraryCubit(repository, permissionService),
     act: (cubit) => cubit.load(),
     expect: () => [
       isA<LibraryLoading>(),
@@ -142,13 +163,14 @@ void main() {
           .having((s) => s.albums, 'albums', [_album])
           .having((s) => s.artists, 'artists', [_artist])
           .having((s) => s.likedSongs, 'likedSongs', [_song1])
-          .having((s) => s.recentlyPlayed, 'recentlyPlayed', [_song1, _song2]),
+          .having((s) => s.recentlyPlayed, 'recentlyPlayed', [_song1, _song2])
+          .having((s) => s.isEmpty, 'isEmpty', false),
     ],
   );
 
   blocTest<LibraryCubit, LibraryState>(
     'emits [LibraryLoading, LibraryError] when the repository throws',
-    build: () => LibraryCubit(repository),
+    build: () => LibraryCubit(repository, permissionService),
     setUp: () => repository.shouldThrow = true,
     act: (cubit) => cubit.load(),
     expect: () => [
@@ -159,7 +181,7 @@ void main() {
 
   blocTest<LibraryCubit, LibraryState>(
     'setFilter on an already-loaded state updates only the filter field',
-    build: () => LibraryCubit(repository),
+    build: () => LibraryCubit(repository, permissionService),
     act: (cubit) async {
       await cubit.load();
       cubit.setFilter(LibraryFilter.songs);
@@ -173,15 +195,40 @@ void main() {
           .having((s) => s.albums, 'albums', [_album])
           .having((s) => s.artists, 'artists', [_artist])
           .having((s) => s.likedSongs, 'likedSongs', [_song1])
-          .having((s) => s.recentlyPlayed, 'recentlyPlayed', [_song1, _song2]),
+          .having((s) => s.recentlyPlayed, 'recentlyPlayed', [_song1, _song2])
+          .having((s) => s.isEmpty, 'isEmpty', false),
     ],
   );
 
   blocTest<LibraryCubit, LibraryState>(
     'setFilter called before load() is a no-op',
-    build: () => LibraryCubit(repository),
+    build: () => LibraryCubit(repository, permissionService),
     act: (cubit) => cubit.setFilter(LibraryFilter.albums),
     expect: () => [],
     verify: (cubit) => expect(cubit.state, isA<LibraryLoading>()),
   );
+
+  blocTest<LibraryCubit, LibraryState>(
+    'emits LibraryPermissionDenied when permission is not granted',
+    build: () {
+      permissionService = _DeniedMusicPermissionService();
+      return LibraryCubit(repository, permissionService);
+    },
+    act: (cubit) => cubit.load(),
+    expect: () => [
+      isA<LibraryLoading>(),
+      isA<LibraryPermissionDenied>().having((s) => s.permanentlyDenied, 'permanentlyDenied', false),
+    ],
+  );
+}
+
+class _DeniedMusicPermissionService implements MusicPermissionService {
+  @override
+  Future<MusicPermissionStatus> check() async => MusicPermissionStatus.denied;
+
+  @override
+  Future<MusicPermissionStatus> request() async => MusicPermissionStatus.denied;
+
+  @override
+  Future<void> openSettings() async {}
 }
