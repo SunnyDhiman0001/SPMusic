@@ -6,7 +6,9 @@ plugins {
 
 android {
     namespace = "com.example.spmusic"
-    compileSdk = flutter.compileSdkVersion
+    // on_audio_query_android_v1_8 (a transitive dep of on_audio_query_forked) pulls in
+    // androidx libraries that require compileSdk 34+; Flutter's own default lagged behind.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
