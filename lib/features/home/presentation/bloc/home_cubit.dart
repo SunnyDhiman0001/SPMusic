@@ -1,59 +1,46 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/widgets/card_display_item.dart';
-import '../../../../core/widgets/local_artwork.dart';
-import '../../../music/domain/entities/artist_entity.dart';
-import '../../../music/domain/entities/playlist_entity.dart';
-import '../../../music/domain/entities/song_entity.dart';
+import '../../../music/data/services/music_permission_service.dart';
 import '../../../music/domain/repositories/music_repository.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit(this._repository) : super(const HomeInitial());
+  HomeCubit(this._repository, this._permissionService) : super(const HomeInitial());
 
   final MusicRepository _repository;
+  final MusicPermissionService _permissionService;
 
   Future<void> loadHome() async {
     emit(const HomeLoading());
-    try {
-      final results = await Future.wait([
-        _repository.getRecentlyPlayed(),
-        _repository.getMadeForYouPlaylists(),
-        _repository.getTrendingSongs(),
-        _repository.getPopularArtists(),
-      ]);
 
-      emit(HomeLoaded(
-        recentlyPlayed: (results[0] as List<SongEntity>).map(_songToCard).toList(),
-        madeForYou: (results[1] as List<PlaylistEntity>).map(_playlistToCard).toList(),
-        trending: (results[2] as List<SongEntity>).map(_songToCard).toList(),
-        popularArtists: (results[3] as List<ArtistEntity>).map(_artistToCard).toList(),
-      ));
+    final status = await _permissionService.check();
+    if (status != MusicPermissionStatus.granted) {
+      emit(HomePermissionDenied(permanentlyDenied: status == MusicPermissionStatus.permanentlyDenied));
+      return;
+    }
+
+    await _loadSongs();
+  }
+
+  Future<void> requestPermission() async {
+    final status = await _permissionService.request();
+    if (status == MusicPermissionStatus.granted) {
+      await _repository.refresh();
+      await _loadSongs();
+    } else {
+      emit(HomePermissionDenied(permanentlyDenied: status == MusicPermissionStatus.permanentlyDenied));
+    }
+  }
+
+  Future<void> openPermissionSettings() => _permissionService.openSettings();
+
+  Future<void> refresh() => loadHome();
+
+  Future<void> _loadSongs() async {
+    try {
+      final songs = await _repository.getAllSongs();
+      emit(HomeLoaded(songs: songs, isEmpty: songs.isEmpty));
     } catch (e) {
       emit(HomeError(e.toString()));
     }
   }
-
-  Future<void> refresh() => loadHome();
-
-  CardDisplayItem _songToCard(SongEntity song) => CardDisplayItem(
-        id: song.id,
-        artworkKind: ArtworkKind.song,
-        artworkId: song.artworkId,
-        title: song.title,
-        subtitle: song.artist,
-      );
-
-  CardDisplayItem _playlistToCard(PlaylistEntity playlist) => CardDisplayItem(
-        id: playlist.id,
-        artworkKind: ArtworkKind.none,
-        title: playlist.name,
-        subtitle: playlist.description.isEmpty ? playlist.creator : playlist.description,
-      );
-
-  CardDisplayItem _artistToCard(ArtistEntity artist) => CardDisplayItem(
-        id: artist.id,
-        artworkKind: ArtworkKind.none,
-        title: artist.name,
-        subtitle: '${artist.trackCount} tracks',
-      );
 }

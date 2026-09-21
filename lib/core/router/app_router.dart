@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/pages/main_shell_page.dart';
-import '../../features/library/presentation/pages/library_page.dart';
 import '../../features/player/presentation/pages/player_page.dart';
 import '../../features/playlist/presentation/pages/playlist_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
-import '../../features/spotify/presentation/pages/spotify_page.dart';
 
 CustomTransitionPage<void> _fadeSlidePage(Widget child, GoRouterState state) {
   return CustomTransitionPage<void>(
@@ -34,7 +32,6 @@ class AppRouter {
       GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
       GoRoute(path: '/home', builder: (context, state) => const MainShellPage()),
       GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
-      GoRoute(path: '/library', builder: (context, state) => const LibraryPage()),
       GoRoute(
         path: '/player',
         pageBuilder: (context, state) => _fadeSlidePage(const PlayerPage(), state),
@@ -45,10 +42,6 @@ class AppRouter {
           PlaylistPage(playlistId: state.pathParameters['id']!),
           state,
         ),
-      ),
-      GoRoute(
-        path: '/spotify',
-        pageBuilder: (context, state) => _fadeSlidePage(const SpotifyPage(), state),
       ),
     ],
   );

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/injector.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/horizontal_card_list.dart';
-import '../../../../core/widgets/section_header.dart';
-import '../../../music/domain/repositories/music_repository.dart';
+import '../../../../core/theme/theme_mode_cubit.dart';
+import '../../../../core/widgets/no_music_found_view.dart';
+import '../../../../core/widgets/permission_denied_view.dart';
 import '../../../player/presentation/bloc/player_cubit.dart';
+import '../../../search/presentation/widgets/search_song_tile.dart';
 import '../bloc/home_cubit.dart';
 import '../bloc/home_state.dart';
 
@@ -38,110 +40,84 @@ class _HomeView extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return Scaffold(
-          floatingActionButton: state is HomeLoaded
+          floatingActionButton: state is HomeLoaded && state.songs.isNotEmpty
               ? FloatingActionButton(
-                  onPressed: () async {
-                    final songs = await sl<MusicRepository>().getAllSongs();
-                    if (context.mounted) {
-                      context.read<PlayerCubit>().playQueue(songs);
-                    }
-                  },
+                  onPressed: () => context.read<PlayerCubit>().playQueue(state.songs),
                   child: const Icon(Icons.play_arrow),
                 )
               : null,
-          body: RefreshIndicator(
-          onRefresh: () => context.read<HomeCubit>().refresh(),
-          child: switch (state) {
+          body: switch (state) {
             HomeInitial() || HomeLoading() => const Center(child: CircularProgressIndicator()),
             HomeError(:final message) => Center(child: Text('Something went wrong: $message')),
-            HomeLoaded() => CustomScrollView(
+            HomePermissionDenied(:final permanentlyDenied) => CustomScrollView(
                 slivers: [
-                  SliverAppBar(
-                    floating: true,
-                    snap: true,
-                    title: Text(_greeting, style: theme.textTheme.headlineMedium),
-                    actions: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: AppSpacing.md),
-                        child: CircleAvatar(child: Icon(Icons.person)),
-                      ),
-                    ],
+                  _HomeAppBar(greeting: _greeting, theme: theme),
+                  SliverFillRemaining(
+                    child: PermissionDeniedView(
+                      permanentlyDenied: permanentlyDenied,
+                      onRequestPermission: () => context.read<HomeCubit>().requestPermission(),
+                      onOpenSettings: () => context.read<HomeCubit>().openPermissionSettings(),
+                    ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
-                  SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SectionHeader(title: 'Recently Played'),
-                        HorizontalCardList(items: state.recentlyPlayed),
-                      ],
-                    ).animate().fadeIn(delay: 0.ms, duration: 300.ms).slideY(
-                          begin: 0.08,
-                          end: 0,
-                          delay: 0.ms,
-                          duration: 300.ms,
-                          curve: Curves.easeOutCubic,
-                        ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-                  SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SectionHeader(title: 'Made For You'),
-                        HorizontalCardList(items: state.madeForYou, cardWidth: 180),
-                      ],
-                    ).animate().fadeIn(delay: 80.ms, duration: 300.ms).slideY(
-                          begin: 0.08,
-                          end: 0,
-                          delay: 80.ms,
-                          duration: 300.ms,
-                          curve: Curves.easeOutCubic,
-                        ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-                  SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SectionHeader(title: 'Trending Now'),
-                        HorizontalCardList(items: state.trending),
-                      ],
-                    ).animate().fadeIn(delay: 160.ms, duration: 300.ms).slideY(
-                          begin: 0.08,
-                          end: 0,
-                          delay: 160.ms,
-                          duration: 300.ms,
-                          curve: Curves.easeOutCubic,
-                        ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-                  SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SectionHeader(title: 'Popular Artists'),
-                        HorizontalCardList(
-                          items: state.popularArtists,
-                          isCircle: true,
-                          cardWidth: 100,
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: 240.ms, duration: 300.ms).slideY(
-                          begin: 0.08,
-                          end: 0,
-                          delay: 240.ms,
-                          duration: 300.ms,
-                          curve: Curves.easeOutCubic,
-                        ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
                 ],
               ),
+            HomeLoaded(isEmpty: true) => CustomScrollView(
+                slivers: [
+                  _HomeAppBar(greeting: _greeting, theme: theme),
+                  const SliverFillRemaining(child: NoMusicFoundView()),
+                ],
+              ),
+            HomeLoaded(:final songs) => RefreshIndicator(
+                onRefresh: () => context.read<HomeCubit>().refresh(),
+                child: CustomScrollView(
+                  slivers: [
+                    _HomeAppBar(greeting: _greeting, theme: theme),
+                    SliverList.builder(
+                      itemCount: songs.length,
+                      itemBuilder: (context, index) => SearchSongTile(
+                        song: songs[index],
+                        leadingBorderRadius: AppRadius.roundRadius,
+                        onTap: () => context.read<PlayerCubit>().playQueue(songs, startIndex: index),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+                  ],
+                ),
+              ),
           },
-          ),
         );
       },
+    );
+  }
+}
+
+class _HomeAppBar extends StatelessWidget {
+  const _HomeAppBar({required this.greeting, required this.theme});
+
+  final String greeting;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      floating: true,
+      snap: true,
+      title: Text(greeting, style: theme.textTheme.headlineMedium),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search),
+          tooltip: 'Search',
+          onPressed: () => context.push('/search'),
+        ),
+        BlocBuilder<ThemeModeCubit, ThemeMode>(
+          builder: (context, mode) => IconButton(
+            icon: Icon(mode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode),
+            tooltip: mode == ThemeMode.dark ? 'Switch to light mode' : 'Switch to dark mode',
+            onPressed: () => context.read<ThemeModeCubit>().toggle(),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+      ],
     );
   }
 }

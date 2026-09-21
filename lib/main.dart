@@ -4,6 +4,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'core/di/injector.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_mode_cubit.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
 
 Future<void> main() async {
@@ -22,15 +23,20 @@ class SpMusicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<PlayerCubit>.value(
-      value: sl<PlayerCubit>(),
-      child: MaterialApp.router(
-        title: 'spmusic',
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        routerConfig: AppRouter.router,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<PlayerCubit>.value(value: sl<PlayerCubit>()),
+        BlocProvider<ThemeModeCubit>.value(value: sl<ThemeModeCubit>()),
+      ],
+      child: BlocBuilder<ThemeModeCubit, ThemeMode>(
+        builder: (context, themeMode) => MaterialApp.router(
+          title: 'spmusic',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeMode,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          routerConfig: AppRouter.router,
+        ),
       ),
     );
   }

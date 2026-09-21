@@ -4,11 +4,18 @@ import '../../../../core/widgets/local_artwork.dart';
 import '../../../music/domain/entities/song_entity.dart';
 
 class SearchSongTile extends StatelessWidget {
-  const SearchSongTile({required this.song, required this.onTap, this.trailing, super.key});
+  const SearchSongTile({
+    required this.song,
+    required this.onTap,
+    this.trailing,
+    this.leadingBorderRadius,
+    super.key,
+  });
 
   final SongEntity song;
   final VoidCallback onTap;
   final Widget? trailing;
+  final BorderRadius? leadingBorderRadius;
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60);
@@ -24,7 +31,7 @@ class SearchSongTile extends StatelessWidget {
         kind: ArtworkKind.song,
         id: song.artworkId,
         size: 48,
-        borderRadius: AppRadius.smRadius,
+        borderRadius: leadingBorderRadius ?? AppRadius.smRadius,
       ),
       title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(

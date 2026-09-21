@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/presentation/bloc/home_cubit.dart';
-import '../../features/library/presentation/bloc/library_cubit.dart';
 import '../../features/music/data/datasources/local_music_data_source.dart';
 import '../../features/music/data/repositories/music_repository_impl.dart';
 import '../../features/music/data/services/local_storage_service.dart';
@@ -14,13 +13,7 @@ import '../../features/player/domain/repositories/player_repository.dart';
 import '../../features/player/presentation/bloc/player_cubit.dart';
 import '../../features/playlist/presentation/bloc/playlist_cubit.dart';
 import '../../features/search/presentation/bloc/search_cubit.dart';
-import '../../features/spotify/data/datasources/spotify_remote_data_source.dart';
-import '../../features/spotify/data/datasources/spotify_remote_data_source_impl.dart';
-import '../../features/spotify/data/repositories/spotify_repository_impl.dart';
-import '../../features/spotify/data/services/spotify_auth_service.dart';
-import '../../features/spotify/data/services/spotify_auth_service_impl.dart';
-import '../../features/spotify/domain/repositories/spotify_repository.dart';
-import '../../features/spotify/presentation/bloc/spotify_cubit.dart';
+import '../theme/theme_mode_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -29,10 +22,11 @@ Future<void> setupInjector() async {
   sl.registerLazySingleton<SharedPreferences>(() => prefs);
   sl.registerLazySingleton<LocalStorageService>(() => LocalStorageServiceImpl(sl()));
   sl.registerLazySingleton<MusicPermissionService>(() => MusicPermissionServiceImpl());
+  sl.registerLazySingleton<ThemeModeCubit>(() => ThemeModeCubit(sl()));
 
   sl.registerLazySingleton<LocalMusicDataSource>(() => LocalMusicDataSourceImpl());
   sl.registerLazySingleton<MusicRepository>(() => MusicRepositoryImpl(sl(), sl()));
-  sl.registerFactory<HomeCubit>(() => HomeCubit(sl()));
+  sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl()));
 
   sl.registerLazySingleton<AudioPlayerService>(() => JustAudioPlayerService());
   sl.registerLazySingleton<PlayerRepository>(() => PlayerRepositoryImpl(sl()));
@@ -42,15 +36,5 @@ Future<void> setupInjector() async {
 
   sl.registerFactory<SearchCubit>(() => SearchCubit(sl()));
 
-  sl.registerFactory<LibraryCubit>(() => LibraryCubit(sl(), sl()));
   sl.registerFactory<PlaylistCubit>(() => PlaylistCubit(sl()));
-
-  sl.registerLazySingleton<SpotifyAuthService>(() => SpotifyAuthServiceImpl());
-  sl.registerLazySingleton<SpotifyRemoteDataSource>(
-    () => SpotifyRemoteDataSourceImpl(sl<SpotifyAuthService>().getValidAccessToken),
-  );
-  sl.registerLazySingleton<SpotifyRepository>(
-    () => SpotifyRepositoryImpl(sl(), sl()),
-  );
-  sl.registerFactory<SpotifyCubit>(() => SpotifyCubit(sl()));
 }

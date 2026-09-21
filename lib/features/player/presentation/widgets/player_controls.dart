@@ -44,7 +44,7 @@ class PlayerControls extends StatelessWidget {
               onPressed: onToggleShuffle,
             ),
             IconButton(
-              icon: const Icon(Icons.skip_previous),
+              icon: Icon(Icons.skip_previous, color: inactiveColor),
               iconSize: 36,
               onPressed: onPrevious,
             ),
@@ -55,7 +55,7 @@ class PlayerControls extends StatelessWidget {
               iconSize: 32,
             ),
             IconButton(
-              icon: const Icon(Icons.skip_next),
+              icon: Icon(Icons.skip_next, color: inactiveColor),
               iconSize: 36,
               onPressed: onNext,
             ),

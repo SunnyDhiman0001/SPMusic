@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spmusic/core/di/injector.dart';
 import 'package:spmusic/core/router/app_router.dart';
+import 'package:spmusic/core/theme/app_theme.dart';
+import 'package:spmusic/core/theme/theme_mode_cubit.dart';
 import 'package:spmusic/features/home/presentation/pages/main_shell_page.dart';
 import 'package:spmusic/features/music/data/datasources/local_music_data_source.dart';
 import 'package:spmusic/features/music/data/models/album_model.dart';
@@ -13,24 +15,18 @@ import 'package:spmusic/features/music/data/models/song_model.dart';
 import 'package:spmusic/features/music/data/services/music_permission_service.dart';
 import 'package:spmusic/features/player/presentation/bloc/player_cubit.dart';
 
-/// The real [LocalMusicDataSourceImpl] and [MusicPermissionServiceImpl] talk
-/// to the on_audio_query platform channel, which isn't available in a widget
-/// test. Swap them for no-op fakes after `setupInjector` wires the app so the
-/// Home/Library cubits can load without throwing a MissingPluginException
-/// (which would otherwise leave the UI stuck showing a loading spinner and
-/// pumpAndSettle timing out).
 class _FakeLocalMusicDataSource implements LocalMusicDataSource {
   @override
-  Future<List<SongModel>> getSongs() async => const [];
+  Future<List<SongModel>> getSongs() async => [];
 
   @override
-  Future<List<ArtistModel>> getArtists() async => const [];
+  Future<List<ArtistModel>> getArtists() async => [];
 
   @override
-  Future<List<AlbumModel>> getAlbums() async => const [];
+  Future<List<AlbumModel>> getAlbums() async => [];
 
   @override
-  Future<List<PlaylistModel>> getPlaylists() async => const [];
+  Future<List<PlaylistModel>> getPlaylists() async => [];
 
   @override
   void invalidateCache() {}
@@ -53,31 +49,34 @@ void main() {
     await sl.reset();
     await setupInjector();
 
+    // Swap the real MediaStore-backed services for fakes: the real ones talk
+    // to platform channels that aren't mocked in this widget-test environment
+    // and would otherwise hang pumpAndSettle forever.
     sl.unregister<LocalMusicDataSource>();
     sl.registerLazySingleton<LocalMusicDataSource>(() => _FakeLocalMusicDataSource());
-
     sl.unregister<MusicPermissionService>();
     sl.registerLazySingleton<MusicPermissionService>(() => _FakeMusicPermissionService());
   });
 
-  testWidgets('router starts at /splash and navigates to /home shell', (tester) async {
-    final router = AppRouter.router;
+  testWidgets('splash screen navigates to the home shell', (tester) async {
     await tester.pumpWidget(
-      BlocProvider<PlayerCubit>.value(
-        value: sl<PlayerCubit>(),
-        child: MaterialApp.router(routerConfig: router),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<PlayerCubit>.value(value: sl<PlayerCubit>()),
+          BlocProvider<ThemeModeCubit>.value(value: sl<ThemeModeCubit>()),
+        ],
+        child: MaterialApp.router(
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          routerConfig: AppRouter.router,
+        ),
       ),
     );
 
-    // Single pump only: SplashPage plays a short entrance animation and
-    // auto-navigates after a delay. pumpAndSettle would fast-forward through
-    // both, so we deliberately render just the first frame to assert on the
-    // splash content before it transitions away.
-    await tester.pump();
     expect(find.text('SPMusic'), findsOneWidget);
 
-    router.go('/home');
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
     expect(find.byType(MainShellPage), findsOneWidget);
   });
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_spacing.dart';
+import '../theme/app_spacing.dart';
 
 class NoMusicFoundView extends StatelessWidget {
   const NoMusicFoundView({super.key});

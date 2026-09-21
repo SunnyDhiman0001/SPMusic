@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../core/widgets/card_display_item.dart';
+import '../../../music/domain/entities/song_entity.dart';
 
 sealed class HomeState extends Equatable {
   const HomeState();
@@ -16,21 +16,23 @@ class HomeLoading extends HomeState {
   const HomeLoading();
 }
 
-class HomeLoaded extends HomeState {
-  const HomeLoaded({
-    required this.recentlyPlayed,
-    required this.madeForYou,
-    required this.trending,
-    required this.popularArtists,
-  });
+class HomePermissionDenied extends HomeState {
+  const HomePermissionDenied({required this.permanentlyDenied});
 
-  final List<CardDisplayItem> recentlyPlayed;
-  final List<CardDisplayItem> madeForYou;
-  final List<CardDisplayItem> trending;
-  final List<CardDisplayItem> popularArtists;
+  final bool permanentlyDenied;
 
   @override
-  List<Object?> get props => [recentlyPlayed, madeForYou, trending, popularArtists];
+  List<Object?> get props => [permanentlyDenied];
+}
+
+class HomeLoaded extends HomeState {
+  const HomeLoaded({required this.songs, required this.isEmpty});
+
+  final List<SongEntity> songs;
+  final bool isEmpty;
+
+  @override
+  List<Object?> get props => [songs, isEmpty];
 }
 
 class HomeError extends HomeState {
