@@ -6,7 +6,6 @@ class AlbumModel extends AlbumEntity {
     required super.title,
     required super.artistId,
     required super.artistName,
-    required super.coverUrl,
     required super.songIds,
   });
 }

@@ -8,7 +8,7 @@ class SongModel extends SongEntity {
     required super.artistId,
     required super.album,
     required super.albumId,
-    required super.artworkUrl,
+    required super.artworkId,
     required super.audioUrl,
     required super.duration,
     super.isFavorite,

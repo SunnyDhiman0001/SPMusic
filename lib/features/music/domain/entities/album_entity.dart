@@ -6,7 +6,6 @@ class AlbumEntity extends Equatable {
     required this.title,
     required this.artistId,
     required this.artistName,
-    required this.coverUrl,
     required this.songIds,
   });
 
@@ -14,9 +13,8 @@ class AlbumEntity extends Equatable {
   final String title;
   final String artistId;
   final String artistName;
-  final String coverUrl;
   final List<String> songIds;
 
   @override
-  List<Object?> get props => [id, title, artistId, artistName, coverUrl, songIds];
+  List<Object?> get props => [id, title, artistId, artistName, songIds];
 }

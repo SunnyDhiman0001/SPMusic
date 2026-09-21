@@ -8,7 +8,7 @@ class SongEntity extends Equatable {
     required this.artistId,
     required this.album,
     required this.albumId,
-    required this.artworkUrl,
+    required this.artworkId,
     required this.audioUrl,
     required this.duration,
     this.isFavorite = false,
@@ -20,7 +20,7 @@ class SongEntity extends Equatable {
   final String artistId;
   final String album;
   final String albumId;
-  final String artworkUrl;
+  final int artworkId;
   final String audioUrl;
   final Duration duration;
   final bool isFavorite;
@@ -33,7 +33,7 @@ class SongEntity extends Equatable {
       artistId: artistId,
       album: album,
       albumId: albumId,
-      artworkUrl: artworkUrl,
+      artworkId: artworkId,
       audioUrl: audioUrl,
       duration: duration,
       isFavorite: isFavorite ?? this.isFavorite,
@@ -48,7 +48,7 @@ class SongEntity extends Equatable {
         artistId,
         album,
         albumId,
-        artworkUrl,
+        artworkId,
         audioUrl,
         duration,
         isFavorite,

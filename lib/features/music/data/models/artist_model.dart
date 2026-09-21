@@ -4,6 +4,6 @@ class ArtistModel extends ArtistEntity {
   const ArtistModel({
     required super.id,
     required super.name,
-    required super.imageUrl,
+    required super.trackCount,
   });
 }

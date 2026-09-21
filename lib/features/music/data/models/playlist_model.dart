@@ -5,7 +5,6 @@ class PlaylistModel extends PlaylistEntity {
     required super.id,
     required super.name,
     required super.description,
-    required super.coverUrl,
     required super.songIds,
     required super.creator,
   });
