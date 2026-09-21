@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/di/injector.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_mode_cubit.dart';
+import '../../../../core/widgets/favorite_button.dart';
 import '../../../../core/widgets/no_music_found_view.dart';
 import '../../../../core/widgets/permission_denied_view.dart';
+import '../../../favorites/presentation/bloc/favorites_cubit.dart';
+import '../../../favorites/presentation/bloc/favorites_state.dart';
 import '../../../player/presentation/bloc/player_cubit.dart';
 import '../../../search/presentation/widgets/search_song_tile.dart';
 import '../bloc/home_cubit.dart';
@@ -28,64 +33,84 @@ class HomePage extends StatelessWidget {
 class _HomeView extends StatelessWidget {
   const _HomeView();
 
-  String get _greeting {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return Scaffold(
           floatingActionButton: state is HomeLoaded && state.songs.isNotEmpty
               ? FloatingActionButton(
-                  onPressed: () => context.read<PlayerCubit>().playQueue(state.songs),
+                  onPressed: () =>
+                      context.read<PlayerCubit>().playQueue(state.songs),
                   child: const Icon(LucideIcons.play),
                 )
               : null,
-          body: switch (state) {
-            HomeInitial() || HomeLoading() => const Center(child: CircularProgressIndicator()),
-            HomeError(:final message) => Center(child: Text('Something went wrong: $message')),
-            HomePermissionDenied(:final permanentlyDenied) => CustomScrollView(
-                slivers: [
-                  _HomeAppBar(greeting: _greeting, theme: theme),
-                  SliverFillRemaining(
-                    child: PermissionDeniedView(
-                      permanentlyDenied: permanentlyDenied,
-                      onRequestPermission: () => context.read<HomeCubit>().requestPermission(),
-                      onOpenSettings: () => context.read<HomeCubit>().openPermissionSettings(),
+          body: SafeArea(
+            top: true,
+            bottom: true,
+            child: switch (state) {
+              HomeInitial() ||
+              HomeLoading() => const Center(child: CircularProgressIndicator()),
+              HomeError(:final message) => Center(
+                child: Text('Something went wrong: $message'),
+              ),
+              HomePermissionDenied(:final permanentlyDenied) =>
+                CustomScrollView(
+                  slivers: [
+                    const _HomeAppBar(),
+                    SliverFillRemaining(
+                      child: PermissionDeniedView(
+                        permanentlyDenied: permanentlyDenied,
+                        onRequestPermission: () =>
+                            context.read<HomeCubit>().requestPermission(),
+                        onOpenSettings: () =>
+                            context.read<HomeCubit>().openPermissionSettings(),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            HomeLoaded(isEmpty: true) => CustomScrollView(
+                  ],
+                ),
+              HomeLoaded(isEmpty: true) => const CustomScrollView(
                 slivers: [
-                  _HomeAppBar(greeting: _greeting, theme: theme),
-                  const SliverFillRemaining(child: NoMusicFoundView()),
+                  _HomeAppBar(),
+                  SliverFillRemaining(child: NoMusicFoundView()),
                 ],
               ),
-            HomeLoaded(:final songs) => RefreshIndicator(
+              HomeLoaded(:final songs) => RefreshIndicator(
                 onRefresh: () => context.read<HomeCubit>().refresh(),
                 child: CustomScrollView(
                   slivers: [
-                    _HomeAppBar(greeting: _greeting, theme: theme),
+                    const _HomeAppBar(),
                     SliverList.builder(
                       itemCount: songs.length,
                       itemBuilder: (context, index) => SearchSongTile(
                         song: songs[index],
                         leadingBorderRadius: AppRadius.roundRadius,
-                        onTap: () => context.read<PlayerCubit>().playQueue(songs, startIndex: index),
+                        onTap: () => context.read<PlayerCubit>().playQueue(
+                          songs,
+                          startIndex: index,
+                        ),
+                        trailing: BlocSelector<FavoritesCubit, FavoritesState, bool>(
+                          selector: (state) =>
+                              state is FavoritesLoaded &&
+                              state.isFavorite(songs[index].id),
+                          builder: (context, isFavorite) => FavoriteButton(
+                            isFavorite: isFavorite,
+                            size: 24,
+                            onTap: () => context.read<FavoritesCubit>().toggleFavorite(
+                              songs[index].id,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: AppSpacing.xxl),
+                    ),
                   ],
                 ),
               ),
-          },
+            },
+          ),
         );
       },
     );
@@ -93,17 +118,37 @@ class _HomeView extends StatelessWidget {
 }
 
 class _HomeAppBar extends StatelessWidget {
-  const _HomeAppBar({required this.greeting, required this.theme});
-
-  final String greeting;
-  final ThemeData theme;
+  const _HomeAppBar();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SliverAppBar(
       floating: true,
       snap: true,
-      title: Text(greeting, style: theme.textTheme.headlineMedium),
+      titleSpacing: AppSpacing.md,
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: AppRadius.smRadius,
+            child: Image.asset('assets/icon/logo.png', width: 28, height: 28),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text.rich(
+            TextSpan(
+              style: theme.textTheme.headlineMedium,
+              children: const [
+                TextSpan(
+                  text: 'SP',
+                  style: TextStyle(color: AppColors.logoOrange),
+                ),
+                TextSpan(text: 'Music'),
+              ],
+            ),
+          ),
+        ],
+      ),
       actions: [
         IconButton(
           icon: const Icon(LucideIcons.search),
@@ -112,8 +157,12 @@ class _HomeAppBar extends StatelessWidget {
         ),
         BlocBuilder<ThemeModeCubit, ThemeMode>(
           builder: (context, mode) => IconButton(
-            icon: Icon(mode == ThemeMode.dark ? LucideIcons.moon : LucideIcons.sun),
-            tooltip: mode == ThemeMode.dark ? 'Switch to light mode' : 'Switch to dark mode',
+            icon: Icon(
+              mode == ThemeMode.dark ? LucideIcons.moon : LucideIcons.sun,
+            ),
+            tooltip: mode == ThemeMode.dark
+                ? 'Switch to light mode'
+                : 'Switch to dark mode',
             onPressed: () => context.read<ThemeModeCubit>().toggle(),
           ),
         ),

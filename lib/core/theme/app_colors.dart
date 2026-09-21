@@ -24,12 +24,25 @@ class AppColors {
   static const Color textSecondaryDark = lavenderGrey;
 
   static const Color white = alabasterGrey;
-  static const Color surfaceLight = Color(0xFFF7F7FA);
+
+  // Semantic aliases used across the app's light theme — built from the same
+  // "Dusk" palette so light mode reads as the same brand, not a different one.
+  // A soft, cool-tinted off-white (not the beige-ish alabasterGrey) so white
+  // cards actually pop off the background instead of blending into it.
+  static const Color surfaceLight = Color(0xFFEEF1F5);
   static const Color cardLight = Color(0xFFFFFFFF);
-  static const Color textPrimaryLight = Color(0xFF14141A);
-  static const Color textSecondaryLight = Color(0xFF6E6E78);
+  static const Color textPrimaryLight = inkBlack;
+  // Deepened past lavenderGrey for real contrast on a light background —
+  // lavenderGrey alone reads washed-out on white.
+  static const Color textSecondaryLight = Color(0xFF54697F);
 
   static const Color error = Color(0xFFFF5470);
 
+  /// Fixed brand accent from the app logo (the equalizer bars/play triangle).
+  /// Intentionally the same in light and dark mode — it's the logo's color,
+  /// not a theme-derived one.
+  static const Color logoOrange = Color(0xFFFA6E4C);
+
   static const List<Color> darkBackgroundGradient = [inkBlack, prussianBlue];
+  static const List<Color> lightBackgroundGradient = [Color(0xFFFFFFFF), surfaceLight];
 }

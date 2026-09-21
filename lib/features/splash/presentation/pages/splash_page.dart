@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -56,8 +55,7 @@ class SplashPage extends HookWidget {
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.5),
@@ -66,20 +64,24 @@ class SplashPage extends HookWidget {
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      LucideIcons.audio_waveform,
-                      color: AppColors.white,
-                      size: 48,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.asset('assets/icon/logo.png', width: 96, height: 96),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'SPMusic',
-                    style: TextStyle(
-                      color: AppColors.textPrimaryDark,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
+                  Text.rich(
+                    const TextSpan(
+                      style: TextStyle(
+                        color: AppColors.textPrimaryDark,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                      children: [
+                        TextSpan(text: 'SP', style: TextStyle(color: AppColors.logoOrange)),
+                        TextSpan(text: 'Music'),
+                      ],
                     ),
                   ),
                 ],

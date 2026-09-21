@@ -21,15 +21,18 @@ class PlayerPage extends StatelessWidget {
       body: BlocSelector<PlayerCubit, PlayerState, SongEntity?>(
         selector: (state) => state.currentSong,
         builder: (context, song) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
           return Stack(
             children: [
-              const Positioned.fill(
+              Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: AppColors.darkBackgroundGradient,
+                      colors: isDark
+                          ? AppColors.darkBackgroundGradient
+                          : AppColors.lightBackgroundGradient,
                     ),
                   ),
                 ),
@@ -47,11 +50,11 @@ class PlayerPage extends StatelessWidget {
                   children: [
                     const _PlayerAppBar(),
                     if (song == null)
-                      const Expanded(
+                      Expanded(
                         child: Center(
                           child: Text(
                             'Nothing playing',
-                            style: TextStyle(color: AppColors.textPrimaryDark),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
                       )
@@ -110,7 +113,7 @@ class _PlayerAppBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(LucideIcons.chevron_down, color: AppColors.textPrimaryDark),
+            icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () => context.pop(),
           ),
           const Spacer(),

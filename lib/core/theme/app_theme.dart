@@ -55,6 +55,8 @@ class AppTheme {
       textTheme: _textTheme(AppColors.textPrimaryLight, AppColors.textSecondaryLight),
       cardTheme: CardThemeData(
         color: AppColors.cardLight,
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.12),
         shape: RoundedRectangleBorder(borderRadius: AppRadius.lgRadius),
       ),
       appBarTheme: const AppBarTheme(

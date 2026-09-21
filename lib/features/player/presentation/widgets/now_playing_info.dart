@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/favorite_button.dart';
 import '../../../music/domain/entities/song_entity.dart';
@@ -31,9 +30,7 @@ class NowPlayingInfo extends StatelessWidget {
                   song.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: AppColors.textPrimaryDark,
-                  ),
+                  style: theme.textTheme.headlineMedium,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -45,7 +42,7 @@ class NowPlayingInfo extends StatelessWidget {
             song.artist,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryDark),
+            style: theme.textTheme.bodySmall,
           ),
         ],
       ),

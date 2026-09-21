@@ -9,6 +9,8 @@ class SearchSongTile extends StatelessWidget {
     required this.onTap,
     this.trailing,
     this.leadingBorderRadius,
+    this.selected = false,
+    this.selectedTileColor,
     super.key,
   });
 
@@ -16,6 +18,13 @@ class SearchSongTile extends StatelessWidget {
   final VoidCallback onTap;
   final Widget? trailing;
   final BorderRadius? leadingBorderRadius;
+
+  /// Highlights this row using ListTile's own selected-state painting
+  /// instead of an intermediate colored Container — a Container between
+  /// the tile and its Material ancestor would hide the tile's own
+  /// background/ink splashes (Flutter warns about exactly this).
+  final bool selected;
+  final Color? selectedTileColor;
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60);
@@ -27,6 +36,8 @@ class SearchSongTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
+      selected: selected,
+      selectedTileColor: selectedTileColor,
       leading: LocalArtwork(
         kind: ArtworkKind.song,
         id: song.artworkId,

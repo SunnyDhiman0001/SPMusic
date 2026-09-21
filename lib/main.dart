@@ -5,6 +5,7 @@ import 'core/di/injector.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_cubit.dart';
+import 'features/favorites/presentation/bloc/favorites_cubit.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
 
 Future<void> main() async {
@@ -27,6 +28,7 @@ class SpMusicApp extends StatelessWidget {
       providers: [
         BlocProvider<PlayerCubit>.value(value: sl<PlayerCubit>()),
         BlocProvider<ThemeModeCubit>.value(value: sl<ThemeModeCubit>()),
+        BlocProvider<FavoritesCubit>.value(value: sl<FavoritesCubit>()..load()),
       ],
       child: BlocBuilder<ThemeModeCubit, ThemeMode>(
         builder: (context, themeMode) => MaterialApp.router(

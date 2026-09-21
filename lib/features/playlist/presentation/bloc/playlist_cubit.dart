@@ -18,14 +18,4 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       emit(PlaylistError(e.toString()));
     }
   }
-
-  Future<void> toggleFavorite(String songId) async {
-    await _repository.toggleFavorite(songId);
-
-    final current = state;
-    if (current is PlaylistLoaded) {
-      final songs = await _repository.getSongsByIds(current.playlist.songIds);
-      emit(PlaylistLoaded(playlist: current.playlist, songs: songs));
-    }
-  }
 }

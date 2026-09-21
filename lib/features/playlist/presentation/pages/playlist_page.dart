@@ -3,6 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/di/injector.dart';
+import '../../../favorites/presentation/bloc/favorites_cubit.dart';
+import '../../../favorites/presentation/bloc/favorites_state.dart';
 import '../../../player/presentation/bloc/player_cubit.dart';
 import '../../../search/presentation/widgets/search_song_tile.dart';
 import '../bloc/playlist_cubit.dart';
@@ -46,12 +48,17 @@ class PlaylistPage extends StatelessWidget {
                         return SearchSongTile(
                           song: song,
                           onTap: () => context.read<PlayerCubit>().playQueue(songs, startIndex: index),
-                          trailing: IconButton(
-                            icon: Icon(
-                              LucideIcons.heart,
-                              color: song.isFavorite ? Theme.of(context).colorScheme.secondary : null,
+                          trailing: BlocSelector<FavoritesCubit, FavoritesState, bool>(
+                            selector: (state) =>
+                                state is FavoritesLoaded && state.isFavorite(song.id),
+                            builder: (context, isFavorite) => IconButton(
+                              icon: Icon(
+                                LucideIcons.heart,
+                                color: isFavorite ? Theme.of(context).colorScheme.secondary : null,
+                              ),
+                              onPressed: () =>
+                                  context.read<FavoritesCubit>().toggleFavorite(song.id),
                             ),
-                            onPressed: () => context.read<PlaylistCubit>().toggleFavorite(song.id),
                           ),
                         ).animate().fadeIn(delay: (30 * index).ms, duration: 200.ms);
                       },

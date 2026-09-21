@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/music_progress_bar.dart';
+import '../../../favorites/presentation/bloc/favorites_cubit.dart';
+import '../../../favorites/presentation/bloc/favorites_state.dart';
 import '../../../music/domain/entities/song_entity.dart';
-import '../../../music/domain/repositories/music_repository.dart';
 import '../bloc/player_cubit.dart';
 import '../bloc/player_state.dart';
 import 'now_playing_info.dart';
@@ -12,42 +12,13 @@ import 'player_bottom_actions.dart';
 import 'player_controls.dart';
 import 'rotating_artwork.dart';
 
-class PlayerBody extends StatefulWidget {
+class PlayerBody extends StatelessWidget {
   const PlayerBody({required this.song, super.key});
 
   final SongEntity song;
 
   @override
-  State<PlayerBody> createState() => _PlayerBodyState();
-}
-
-class _PlayerBodyState extends State<PlayerBody> {
-  late String _songId = widget.song.id;
-  late final ValueNotifier<bool> _isFavorite = ValueNotifier<bool>(widget.song.isFavorite);
-
-  @override
-  void didUpdateWidget(covariant PlayerBody oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.song.id != _songId) {
-      _songId = widget.song.id;
-      _isFavorite.value = widget.song.isFavorite;
-    }
-  }
-
-  @override
-  void dispose() {
-    _isFavorite.dispose();
-    super.dispose();
-  }
-
-  Future<void> _toggleFavorite() async {
-    _isFavorite.value = !_isFavorite.value;
-    await sl<MusicRepository>().toggleFavorite(widget.song.id);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final song = widget.song;
     final cubit = context.read<PlayerCubit>();
 
     return Padding(
@@ -63,12 +34,12 @@ class _PlayerBodyState extends State<PlayerBody> {
               isPlaying: isPlaying,
             ),
           ),
-          ValueListenableBuilder<bool>(
-            valueListenable: _isFavorite,
-            builder: (context, isFavorite, _) => NowPlayingInfo(
+          BlocSelector<FavoritesCubit, FavoritesState, bool>(
+            selector: (state) => state is FavoritesLoaded && state.isFavorite(song.id),
+            builder: (context, isFavorite) => NowPlayingInfo(
               song: song,
               isFavorite: isFavorite,
-              onToggleFavorite: _toggleFavorite,
+              onToggleFavorite: () => context.read<FavoritesCubit>().toggleFavorite(song.id),
             ),
           ),
           BlocSelector<PlayerCubit, PlayerState, (Duration, Duration)>(

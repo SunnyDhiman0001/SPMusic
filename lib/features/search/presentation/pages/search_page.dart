@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/card_display_item.dart';
@@ -51,30 +54,56 @@ class SearchPage extends StatelessWidget {
   }
 }
 
-class _SearchView extends StatefulWidget {
+/// Owns the search text field's controller/focus/debounce state via hooks,
+/// so no StatefulWidget is needed for what is otherwise plain local UI
+/// state (see [SearchInputBar], which is purely presentational).
+class _SearchView extends HookWidget {
   const _SearchView();
 
   @override
-  State<_SearchView> createState() => _SearchViewState();
-}
-
-class _SearchViewState extends State<_SearchView> {
-  final _inputKey = GlobalKey<SearchInputBarState>();
-
-  void _onRecentSearchTap(String query) {
-    _inputKey.currentState?.setTextAndSearch(query);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = useTextEditingController();
+    final focusNode = useFocusNode();
+    final debounceTimer = useRef<Timer?>(null);
+
+    // Rebuild whenever the text or focus state changes, so the clear
+    // button and the focus border stay in sync.
+    useValueListenable(controller);
+    useListenable(focusNode);
+
+    useEffect(() => () => debounceTimer.value?.cancel(), const []);
+
+    void search(String query) => context.read<SearchCubit>().search(query);
+
+    void handleTextChanged(String value) {
+      debounceTimer.value?.cancel();
+      debounceTimer.value = Timer(const Duration(milliseconds: 300), () => search(value));
+    }
+
+    void handleRecentSearchTap(String query) {
+      debounceTimer.value?.cancel();
+      controller.text = query;
+      controller.selection = TextSelection.collapsed(offset: query.length);
+      search(query);
+    }
+
+    void handleClear() {
+      debounceTimer.value?.cancel();
+      controller.clear();
+      search('');
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: AppSpacing.sm),
             SearchInputBar(
-              key: _inputKey,
-              onChanged: (query) => context.read<SearchCubit>().search(query),
+              controller: controller,
+              focusNode: focusNode,
+              hasText: controller.text.isNotEmpty,
+              onTextChanged: handleTextChanged,
+              onClear: handleClear,
             ),
             const SizedBox(height: AppSpacing.sm),
             Expanded(
@@ -83,7 +112,7 @@ class _SearchViewState extends State<_SearchView> {
                   return switch (state) {
                     SearchIdle() => RecentSearchesList(
                         searches: state.recentSearches,
-                        onTapSearch: _onRecentSearchTap,
+                        onTapSearch: handleRecentSearchTap,
                         onClear: () => context.read<SearchCubit>().clearRecentSearches(),
                       ),
                     SearchLoading() => const Center(child: CircularProgressIndicator()),

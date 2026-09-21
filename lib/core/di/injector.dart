@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/favorites/presentation/bloc/favorites_cubit.dart';
 import '../../features/home/presentation/bloc/home_cubit.dart';
 import '../../features/music/data/datasources/local_music_data_source.dart';
 import '../../features/music/data/repositories/music_repository_impl.dart';
@@ -27,6 +28,12 @@ Future<void> setupInjector() async {
   sl.registerLazySingleton<LocalMusicDataSource>(() => LocalMusicDataSourceImpl());
   sl.registerLazySingleton<MusicRepository>(() => MusicRepositoryImpl(sl(), sl()));
   sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl()));
+  // A real singleton (not a factory): every screen must share one instance
+  // so a favorite toggled anywhere updates everywhere immediately. Load()
+  // is triggered by whoever first reads it (see main.dart), not eagerly
+  // here, so its first MediaStore access happens after DI/test setup is
+  // fully wired rather than mid-registration.
+  sl.registerLazySingleton<FavoritesCubit>(() => FavoritesCubit(sl()));
 
   sl.registerLazySingleton<AudioPlayerService>(() => JustAudioPlayerService());
   sl.registerLazySingleton<PlayerRepository>(() => PlayerRepositoryImpl(sl()));

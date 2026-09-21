@@ -41,10 +41,6 @@ const _playlist = PlaylistEntity(
 );
 
 class _FakeMusicRepository implements MusicRepository {
-  bool toggleFavoriteCalledWith = false;
-  String? lastToggledSongId;
-  int getSongsByIdsCallCount = 0;
-
   @override
   Future<PlaylistEntity> getPlaylistById(String id) async {
     if (id != 'p1') throw StateError('Playlist not found: $id');
@@ -52,19 +48,10 @@ class _FakeMusicRepository implements MusicRepository {
   }
 
   @override
-  Future<List<SongEntity>> getSongsByIds(List<String> ids) async {
-    getSongsByIdsCallCount++;
-    if (getSongsByIdsCallCount == 1) {
-      return [_song1, _song2];
-    }
-    return [_song1.copyWith(isFavorite: true), _song2];
-  }
+  Future<List<SongEntity>> getSongsByIds(List<String> ids) async => [_song1, _song2];
 
   @override
-  Future<void> toggleFavorite(String songId) async {
-    toggleFavoriteCalledWith = true;
-    lastToggledSongId = songId;
-  }
+  Future<void> toggleFavorite(String songId) => throw UnimplementedError();
 
   @override
   Future<List<SongEntity>> getRecentlyPlayed() => throw UnimplementedError();
@@ -139,27 +126,5 @@ void main() {
       isA<PlaylistLoading>(),
       isA<PlaylistError>(),
     ],
-  );
-
-  blocTest<PlaylistCubit, PlaylistState>(
-    'toggleFavorite calls repository and re-emits PlaylistLoaded with updated favorite flags',
-    build: () => PlaylistCubit(repository),
-    act: (cubit) async {
-      await cubit.loadPlaylist('p1');
-      await cubit.toggleFavorite('s1');
-    },
-    expect: () => [
-      isA<PlaylistLoading>(),
-      isA<PlaylistLoaded>().having((s) => s.songs, 'songs', [_song1, _song2]),
-      isA<PlaylistLoaded>().having(
-        (s) => s.songs,
-        'songs',
-        [_song1.copyWith(isFavorite: true), _song2],
-      ),
-    ],
-    verify: (_) {
-      expect(repository.toggleFavoriteCalledWith, isTrue);
-      expect(repository.lastToggledSongId, 's1');
-    },
   );
 }
