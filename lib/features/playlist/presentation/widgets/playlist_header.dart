@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/local_artwork.dart';
@@ -47,13 +48,13 @@ class PlaylistHeader extends StatelessWidget {
             children: [
               FilledButton.icon(
                 onPressed: onPlay,
-                icon: const Icon(Icons.play_arrow),
+                icon: const Icon(LucideIcons.play),
                 label: const Text('Play'),
               ),
               const SizedBox(width: AppSpacing.md),
               OutlinedButton.icon(
                 onPressed: onShuffle,
-                icon: const Icon(Icons.shuffle),
+                icon: const Icon(LucideIcons.shuffle),
                 label: const Text('Shuffle'),
               ),
             ],

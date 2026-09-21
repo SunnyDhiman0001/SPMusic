@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:on_audio_query_forked/on_audio_query.dart';
 
 enum ArtworkKind { song, album, none }
@@ -18,9 +19,9 @@ class LocalArtwork extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   IconData get _fallbackIcon => switch (kind) {
-        ArtworkKind.song => Icons.music_note,
-        ArtworkKind.album => Icons.album,
-        ArtworkKind.none => Icons.queue_music,
+        ArtworkKind.song => LucideIcons.music,
+        ArtworkKind.album => LucideIcons.disc_album,
+        ArtworkKind.none => LucideIcons.list_music,
       };
 
   @override

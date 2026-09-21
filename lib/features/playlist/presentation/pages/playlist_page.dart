@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/di/injector.dart';
 import '../../../player/presentation/bloc/player_cubit.dart';
 import '../../../search/presentation/widgets/search_song_tile.dart';
@@ -47,7 +48,7 @@ class PlaylistPage extends StatelessWidget {
                           onTap: () => context.read<PlayerCubit>().playQueue(songs, startIndex: index),
                           trailing: IconButton(
                             icon: Icon(
-                              song.isFavorite ? Icons.favorite : Icons.favorite_border,
+                              LucideIcons.heart,
                               color: song.isFavorite ? Theme.of(context).colorScheme.secondary : null,
                             ),
                             onPressed: () => context.read<PlaylistCubit>().toggleFavorite(song.id),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -76,7 +77,7 @@ class MiniPlayer extends StatelessWidget {
                   iconSize: 20,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.skip_next),
+                  icon: const Icon(LucideIcons.skip_forward),
                   onPressed: () => context.read<PlayerCubit>().skipNext(),
                 ),
               ],

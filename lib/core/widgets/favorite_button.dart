@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class FavoriteButton extends StatelessWidget {
   const FavoriteButton({
@@ -19,7 +20,7 @@ class FavoriteButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Icon(
-        isFavorite ? Icons.favorite : Icons.favorite_border,
+        LucideIcons.heart,
         color: isFavorite ? theme.colorScheme.error : theme.colorScheme.onSurface,
         size: size,
       )

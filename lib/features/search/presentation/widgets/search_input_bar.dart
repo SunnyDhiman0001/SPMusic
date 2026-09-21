@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -71,7 +72,7 @@ class SearchInputBarState extends State<SearchInputBar> {
       ),
       child: Row(
         children: [
-          Icon(Icons.search, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+          Icon(LucideIcons.search, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: TextField(
@@ -86,7 +87,7 @@ class SearchInputBarState extends State<SearchInputBar> {
           ),
           if (_controller.text.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(LucideIcons.x),
               onPressed: _clear,
             ),
         ],

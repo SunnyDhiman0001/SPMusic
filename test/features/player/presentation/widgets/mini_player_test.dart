@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spmusic/features/music/domain/entities/song_entity.dart';
@@ -104,6 +105,6 @@ void main() {
 
     expect(find.text(testSong.title), findsOneWidget);
     expect(find.text(testSong.artist), findsOneWidget);
-    expect(find.byIcon(Icons.play_arrow), findsOneWidget);
+    expect(find.byIcon(LucideIcons.play), findsOneWidget);
   });
 }

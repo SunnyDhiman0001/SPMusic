@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class PlayerBottomActions extends StatelessWidget {
@@ -11,12 +12,12 @@ class PlayerBottomActions extends StatelessWidget {
       children: [
         TextButton.icon(
           onPressed: null,
-          icon: const Icon(Icons.queue_music, color: AppColors.textSecondaryDark),
+          icon: const Icon(LucideIcons.list_music, color: AppColors.textSecondaryDark),
           label: const Text('Queue', style: TextStyle(color: AppColors.textSecondaryDark)),
         ),
         TextButton.icon(
           onPressed: null,
-          icon: const Icon(Icons.lyrics_outlined, color: AppColors.textSecondaryDark),
+          icon: const Icon(LucideIcons.captions, color: AppColors.textSecondaryDark),
           label: const Text('Lyrics', style: TextStyle(color: AppColors.textSecondaryDark)),
         ),
       ],

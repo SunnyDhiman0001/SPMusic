@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_radius.dart';
 import 'app_text_styles.dart';
@@ -65,7 +66,7 @@ class AppTheme {
   }
 
   static TextTheme _textTheme(Color primaryColor, Color secondaryColor) {
-    return TextTheme(
+    final base = TextTheme(
       headlineLarge: AppTextStyles.headlineLarge.copyWith(color: primaryColor),
       headlineMedium: AppTextStyles.headlineMedium.copyWith(color: primaryColor),
       titleMedium: AppTextStyles.titleMedium.copyWith(color: primaryColor),
@@ -73,5 +74,6 @@ class AppTheme {
       bodySmall: AppTextStyles.bodySmall.copyWith(color: secondaryColor),
       labelSmall: AppTextStyles.labelSmall.copyWith(color: secondaryColor),
     );
+    return GoogleFonts.notoSansTextTheme(base);
   }
 }

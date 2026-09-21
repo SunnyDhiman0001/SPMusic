@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/widgets/animated_play_button.dart';
 import '../../domain/entities/repeat_mode.dart';
 import '../bloc/player_cubit.dart';
@@ -38,13 +39,13 @@ class PlayerControls extends StatelessWidget {
           children: [
             IconButton(
               icon: Icon(
-                Icons.shuffle,
+                LucideIcons.shuffle,
                 color: isShuffle ? activeColor : inactiveColor,
               ),
               onPressed: onToggleShuffle,
             ),
             IconButton(
-              icon: Icon(Icons.skip_previous, color: inactiveColor),
+              icon: Icon(LucideIcons.skip_back, color: inactiveColor),
               iconSize: 36,
               onPressed: onPrevious,
             ),
@@ -55,13 +56,13 @@ class PlayerControls extends StatelessWidget {
               iconSize: 32,
             ),
             IconButton(
-              icon: Icon(Icons.skip_next, color: inactiveColor),
+              icon: Icon(LucideIcons.skip_forward, color: inactiveColor),
               iconSize: 36,
               onPressed: onNext,
             ),
             IconButton(
               icon: Icon(
-                repeatMode == RepeatMode.one ? Icons.repeat_one : Icons.repeat,
+                repeatMode == RepeatMode.one ? LucideIcons.repeat_1 : LucideIcons.repeat,
                 color: repeatMode == RepeatMode.off ? inactiveColor : activeColor,
               ),
               onPressed: onCycleRepeat,

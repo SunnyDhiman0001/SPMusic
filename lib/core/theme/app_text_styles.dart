@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 class AppTextStyles {
   const AppTextStyles._();
 
-  static const String fontFamily = 'Roboto';
-
   static const TextStyle headlineLarge = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,

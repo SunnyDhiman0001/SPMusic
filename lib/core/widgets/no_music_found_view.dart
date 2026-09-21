@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../theme/app_spacing.dart';
 
 class NoMusicFoundView extends StatelessWidget {
@@ -12,7 +13,7 @@ class NoMusicFoundView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.music_off_outlined, size: 64),
+            const Icon(LucideIcons.volume_x, size: 64),
             const SizedBox(height: AppSpacing.md),
             Text(
               'No music found on your device',

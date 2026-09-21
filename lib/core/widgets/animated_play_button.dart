@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class AnimatedPlayButton extends StatelessWidget {
   const AnimatedPlayButton({
@@ -34,7 +35,7 @@ class AnimatedPlayButton extends StatelessWidget {
             child: FadeTransition(opacity: animation, child: child),
           ),
           child: Icon(
-            isPlaying ? Icons.pause : Icons.play_arrow,
+            isPlaying ? LucideIcons.pause : LucideIcons.play,
             key: ValueKey<bool>(isPlaying),
             color: theme.colorScheme.onPrimary,
             size: iconSize,

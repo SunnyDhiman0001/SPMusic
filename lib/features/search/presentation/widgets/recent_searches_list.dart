@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/theme/app_spacing.dart';
 
 class RecentSearchesList extends StatelessWidget {
@@ -37,7 +38,7 @@ class RecentSearchesList extends StatelessWidget {
         ),
         for (final query in searches)
           ListTile(
-            leading: const Icon(Icons.history),
+            leading: const Icon(LucideIcons.clock),
             title: Text(query),
             onTap: () => onTapSearch(query),
           ),

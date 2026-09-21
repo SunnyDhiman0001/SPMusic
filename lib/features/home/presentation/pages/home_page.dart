@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -43,7 +44,7 @@ class _HomeView extends StatelessWidget {
           floatingActionButton: state is HomeLoaded && state.songs.isNotEmpty
               ? FloatingActionButton(
                   onPressed: () => context.read<PlayerCubit>().playQueue(state.songs),
-                  child: const Icon(Icons.play_arrow),
+                  child: const Icon(LucideIcons.play),
                 )
               : null,
           body: switch (state) {
@@ -105,13 +106,13 @@ class _HomeAppBar extends StatelessWidget {
       title: Text(greeting, style: theme.textTheme.headlineMedium),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search),
+          icon: const Icon(LucideIcons.search),
           tooltip: 'Search',
           onPressed: () => context.push('/search'),
         ),
         BlocBuilder<ThemeModeCubit, ThemeMode>(
           builder: (context, mode) => IconButton(
-            icon: Icon(mode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode),
+            icon: Icon(mode == ThemeMode.dark ? LucideIcons.moon : LucideIcons.sun),
             tooltip: mode == ThemeMode.dark ? 'Switch to light mode' : 'Switch to dark mode',
             onPressed: () => context.read<ThemeModeCubit>().toggle(),
           ),

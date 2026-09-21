@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../theme/app_spacing.dart';
 
 class PermissionDeniedView extends StatelessWidget {
@@ -21,7 +22,7 @@ class PermissionDeniedView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.folder_off_outlined, size: 64),
+            const Icon(LucideIcons.folder_x, size: 64),
             const SizedBox(height: AppSpacing.md),
             Text(
               'spmusic needs access to your music',

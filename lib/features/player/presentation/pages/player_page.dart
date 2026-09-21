@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -109,7 +110,7 @@ class _PlayerAppBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textPrimaryDark),
+            icon: const Icon(LucideIcons.chevron_down, color: AppColors.textPrimaryDark),
             onPressed: () => context.pop(),
           ),
           const Spacer(),
