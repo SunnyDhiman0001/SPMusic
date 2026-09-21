@@ -20,4 +20,6 @@ abstract class MusicRepository {
   Future<List<PlaylistEntity>> searchPlaylists(String query);
   Future<List<SongEntity>> getFavoriteSongs();
   Future<void> toggleFavorite(String songId);
+  Future<void> recordPlayed(String songId);
+  Future<void> refresh();
 }

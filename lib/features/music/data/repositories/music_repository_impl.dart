@@ -4,33 +4,44 @@ import '../../domain/entities/playlist_entity.dart';
 import '../../domain/entities/song_entity.dart';
 import '../../domain/repositories/music_repository.dart';
 import '../datasources/local_music_data_source.dart';
+import '../services/local_storage_service.dart';
 
 class MusicRepositoryImpl implements MusicRepository {
-  MusicRepositoryImpl(this._dataSource);
+  MusicRepositoryImpl(this._dataSource, this._storage);
 
   final LocalMusicDataSource _dataSource;
-  final Set<String> _favoriteIds = {};
+  final LocalStorageService _storage;
 
-  SongEntity _applyFavorite(SongEntity song) =>
-      song.copyWith(isFavorite: _favoriteIds.contains(song.id));
+  Future<List<SongEntity>> _applyFavorites(List<SongEntity> songs) async {
+    final favorites = await _storage.getFavoriteIds();
+    return songs.map((s) => s.copyWith(isFavorite: favorites.contains(s.id))).toList();
+  }
+
+  @override
+  Future<void> refresh() async {
+    _dataSource.invalidateCache();
+    await getAllSongs();
+  }
 
   @override
   Future<List<SongEntity>> getRecentlyPlayed() async {
-    final songs = await getAllSongs();
-    return songs.take(3).toList();
+    final ids = await _storage.getRecentlyPlayedIds();
+    if (ids.isEmpty) return [];
+    return getSongsByIds(ids);
   }
 
   @override
   Future<List<PlaylistEntity>> getMadeForYouPlaylists() async {
     final playlists = await getAllPlaylists();
-    return playlists.take(2).toList();
+    return playlists.take(4).toList();
   }
 
   @override
   Future<List<SongEntity>> getTrendingSongs() async {
     final songs = await getAllSongs();
-    if (songs.length <= 3) return [];
-    return songs.sublist(3, songs.length < 7 ? songs.length : 7);
+    if (songs.length <= 10) return songs;
+    final shuffled = [...songs]..shuffle();
+    return shuffled.take(10).toList();
   }
 
   @override
@@ -38,7 +49,8 @@ class MusicRepositoryImpl implements MusicRepository {
 
   @override
   Future<List<SongEntity>> getAllSongs() async {
-    return _dataSource.getSongs().map(_applyFavorite).toList();
+    final songs = await _dataSource.getSongs();
+    return _applyFavorites(songs);
   }
 
   @override
@@ -58,7 +70,7 @@ class MusicRepositoryImpl implements MusicRepository {
 
   @override
   Future<PlaylistEntity> getPlaylistById(String id) async {
-    final playlists = _dataSource.getPlaylists();
+    final playlists = await _dataSource.getPlaylists();
     return playlists.firstWhere(
       (playlist) => playlist.id == id,
       orElse: () => throw StateError('Playlist not found: $id'),
@@ -80,7 +92,8 @@ class MusicRepositoryImpl implements MusicRepository {
         .where(
           (song) =>
               song.title.toLowerCase().contains(lowerQuery) ||
-              song.artist.toLowerCase().contains(lowerQuery),
+              song.artist.toLowerCase().contains(lowerQuery) ||
+              song.album.toLowerCase().contains(lowerQuery),
         )
         .toList();
   }
@@ -115,15 +128,20 @@ class MusicRepositoryImpl implements MusicRepository {
   @override
   Future<List<SongEntity>> getFavoriteSongs() async {
     final songs = await getAllSongs();
-    return songs.where((song) => _favoriteIds.contains(song.id)).toList();
+    return songs.where((song) => song.isFavorite).toList();
   }
 
   @override
   Future<void> toggleFavorite(String songId) async {
-    if (_favoriteIds.contains(songId)) {
-      _favoriteIds.remove(songId);
+    final favorites = await _storage.getFavoriteIds();
+    if (favorites.contains(songId)) {
+      favorites.remove(songId);
     } else {
-      _favoriteIds.add(songId);
+      favorites.add(songId);
     }
+    await _storage.setFavoriteIds(favorites);
   }
+
+  @override
+  Future<void> recordPlayed(String songId) => _storage.recordPlayed(songId);
 }
