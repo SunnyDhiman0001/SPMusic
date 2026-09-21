@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/animated_play_button.dart';
+import '../../../../core/widgets/local_artwork.dart';
 import '../../../music/domain/entities/song_entity.dart';
 import '../bloc/player_cubit.dart';
 import '../bloc/player_state.dart';
@@ -34,14 +34,11 @@ class MiniPlayer extends StatelessWidget {
               children: [
                 Hero(
                   tag: 'player-artwork-${song.id}',
-                  child: ClipRRect(
+                  child: LocalArtwork(
+                    kind: ArtworkKind.song,
+                    id: song.artworkId,
+                    size: 44,
                     borderRadius: AppRadius.smRadius,
-                    child: CachedNetworkImage(
-                      imageUrl: song.artworkUrl,
-                      width: 44,
-                      height: 44,
-                      fit: BoxFit.cover,
-                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),

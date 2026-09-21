@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/card_display_item.dart';
+import '../../../../core/widgets/local_artwork.dart';
 import '../../../music/domain/entities/artist_entity.dart';
 import '../../../music/domain/entities/playlist_entity.dart';
 import '../../../music/domain/entities/song_entity.dart';
@@ -36,22 +37,23 @@ class HomeCubit extends Cubit<HomeState> {
 
   CardDisplayItem _songToCard(SongEntity song) => CardDisplayItem(
         id: song.id,
-        imageUrl: song.artworkUrl,
+        artworkKind: ArtworkKind.song,
+        artworkId: song.artworkId,
         title: song.title,
         subtitle: song.artist,
       );
 
   CardDisplayItem _playlistToCard(PlaylistEntity playlist) => CardDisplayItem(
         id: playlist.id,
-        imageUrl: playlist.coverUrl,
+        artworkKind: ArtworkKind.none,
         title: playlist.name,
-        subtitle: playlist.description,
+        subtitle: playlist.description.isEmpty ? playlist.creator : playlist.description,
       );
 
   CardDisplayItem _artistToCard(ArtistEntity artist) => CardDisplayItem(
         id: artist.id,
-        imageUrl: artist.imageUrl,
+        artworkKind: ArtworkKind.none,
         title: artist.name,
-        subtitle: 'Artist',
+        subtitle: '${artist.trackCount} tracks',
       );
 }

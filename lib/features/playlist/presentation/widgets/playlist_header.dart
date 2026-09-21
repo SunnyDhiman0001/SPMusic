@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/local_artwork.dart';
 import '../../../music/domain/entities/playlist_entity.dart';
 
 class PlaylistHeader extends StatelessWidget {
@@ -25,19 +25,17 @@ class PlaylistHeader extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         children: [
-          ClipRRect(
+          LocalArtwork(
+            kind: ArtworkKind.none,
+            size: 200,
             borderRadius: AppRadius.lgRadius,
-            child: CachedNetworkImage(
-              imageUrl: playlist.coverUrl,
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Text(playlist.name, style: theme.textTheme.headlineMedium, textAlign: TextAlign.center),
-          const SizedBox(height: AppSpacing.xs),
-          Text(playlist.description, style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
+          if (playlist.description.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(playlist.description, style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
+          ],
           const SizedBox(height: AppSpacing.xs),
           Text(
             '$songCount songs · By ${playlist.creator}',

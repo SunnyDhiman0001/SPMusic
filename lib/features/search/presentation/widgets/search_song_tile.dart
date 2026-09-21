@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_radius.dart';
+import '../../../../core/widgets/local_artwork.dart';
 import '../../../music/domain/entities/song_entity.dart';
 
 class SearchSongTile extends StatelessWidget {
@@ -20,14 +20,11 @@ class SearchSongTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
-      leading: ClipRRect(
+      leading: LocalArtwork(
+        kind: ArtworkKind.song,
+        id: song.artworkId,
+        size: 48,
         borderRadius: AppRadius.smRadius,
-        child: CachedNetworkImage(
-          imageUrl: song.artworkUrl,
-          width: 48,
-          height: 48,
-          fit: BoxFit.cover,
-        ),
       ),
       title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(

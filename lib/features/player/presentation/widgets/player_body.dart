@@ -58,7 +58,7 @@ class _PlayerBodyState extends State<PlayerBody> {
           BlocSelector<PlayerCubit, PlayerState, bool>(
             selector: (state) => state.isPlaying,
             builder: (context, isPlaying) => RotatingArtwork(
-              imageUrl: song.artworkUrl,
+              artworkId: song.artworkId,
               heroTag: 'player-artwork-${song.id}',
               isPlaying: isPlaying,
             ),

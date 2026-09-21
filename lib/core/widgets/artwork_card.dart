@@ -1,20 +1,22 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
+import 'local_artwork.dart';
 
 class ArtworkCard extends StatefulWidget {
   const ArtworkCard({
-    required this.imageUrl,
+    required this.artworkKind,
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.artworkId,
     this.width = 150,
     this.isCircle = false,
     super.key,
   });
 
-  final String imageUrl;
+  final ArtworkKind artworkKind;
+  final int? artworkId;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -50,25 +52,11 @@ class _ArtworkCardState extends State<ArtworkCard> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
+              LocalArtwork(
+                kind: widget.artworkKind,
+                id: widget.artworkId,
+                size: widget.width,
                 borderRadius: radius,
-                child: CachedNetworkImage(
-                  imageUrl: widget.imageUrl,
-                  width: widget.width,
-                  height: widget.width,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    width: widget.width,
-                    height: widget.width,
-                    color: theme.cardColor,
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    width: widget.width,
-                    height: widget.width,
-                    color: theme.cardColor,
-                    child: const Icon(Icons.music_note),
-                  ),
-                ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(

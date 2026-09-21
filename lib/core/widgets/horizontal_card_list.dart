@@ -29,7 +29,8 @@ class HorizontalCardList extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = items[index];
           return ArtworkCard(
-            imageUrl: item.imageUrl,
+            artworkKind: item.artworkKind,
+            artworkId: item.artworkId,
             title: item.title,
             subtitle: item.subtitle,
             width: cardWidth,

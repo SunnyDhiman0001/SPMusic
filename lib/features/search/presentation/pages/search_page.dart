@@ -5,6 +5,7 @@ import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/card_display_item.dart';
 import '../../../../core/widgets/horizontal_card_list.dart';
+import '../../../../core/widgets/local_artwork.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../music/domain/entities/album_entity.dart';
 import '../../../music/domain/entities/artist_entity.dart';
@@ -18,23 +19,24 @@ import '../widgets/search_song_tile.dart';
 
 CardDisplayItem _artistToCard(ArtistEntity artist) => CardDisplayItem(
       id: artist.id,
-      imageUrl: artist.imageUrl,
+      artworkKind: ArtworkKind.none,
       title: artist.name,
-      subtitle: 'Artist',
+      subtitle: '${artist.trackCount} tracks',
     );
 
 CardDisplayItem _albumToCard(AlbumEntity album) => CardDisplayItem(
       id: album.id,
-      imageUrl: album.coverUrl,
+      artworkKind: ArtworkKind.album,
+      artworkId: int.tryParse(album.id),
       title: album.title,
       subtitle: album.artistName,
     );
 
 CardDisplayItem _playlistToCard(PlaylistEntity playlist) => CardDisplayItem(
       id: playlist.id,
-      imageUrl: playlist.coverUrl,
+      artworkKind: ArtworkKind.none,
       title: playlist.name,
-      subtitle: playlist.description,
+      subtitle: playlist.creator,
     );
 
 class SearchPage extends StatelessWidget {
