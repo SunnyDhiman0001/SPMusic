@@ -34,6 +34,18 @@ class LocalMusicDataSourceImpl implements LocalMusicDataSource {
   }
 
   Future<void> _scan() async {
+    // Some on_audio_query_forked native queries (observed on
+    // on_audio_query_android_v1_8) throw/double-reply when called before the
+    // audio permission is granted. Never touch the device query without it.
+    final hasPermission = await _audioQuery.permissionsStatus();
+    if (!hasPermission) {
+      _songs = const [];
+      _albums = const [];
+      _artists = const [];
+      _playlists = const [];
+      return;
+    }
+
     final rawSongs = await _audioQuery.querySongs();
 
     final songs = <SongModel>[];

@@ -29,6 +29,7 @@ class LibraryCubit extends Cubit<LibraryState> {
   Future<void> requestPermission() async {
     final status = await _permissionService.request();
     if (status == MusicPermissionStatus.granted) {
+      await _repository.refresh();
       await _loadLibrary();
     } else {
       emit(LibraryPermissionDenied(permanentlyDenied: status == MusicPermissionStatus.permanentlyDenied));
