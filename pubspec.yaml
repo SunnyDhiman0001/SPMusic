@@ -46,6 +46,9 @@ dependencies:
   crypto: ^3.0.6
   flutter_secure_storage: ^9.2.2
   webview_flutter: ^4.10.0
+  on_audio_query_forked: ^2.9.1
+  just_audio_background: ^0.0.1-beta.14
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
