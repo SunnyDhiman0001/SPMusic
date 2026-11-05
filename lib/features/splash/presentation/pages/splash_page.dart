@@ -34,13 +34,17 @@ class SplashPage extends HookWidget {
       return navigationTimer.cancel;
     }, const []);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: AppColors.darkBackgroundGradient,
+            colors: isDark
+                ? AppColors.darkBackgroundGradient
+                : AppColors.lightBackgroundGradient,
           ),
         ),
         child: Center(
@@ -71,14 +75,16 @@ class SplashPage extends HookWidget {
                   ),
                   const SizedBox(height: 24),
                   Text.rich(
-                    const TextSpan(
+                    TextSpan(
                       style: TextStyle(
-                        color: AppColors.textPrimaryDark,
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,
                       ),
-                      children: [
+                      children: const [
                         TextSpan(text: 'SP', style: TextStyle(color: AppColors.logoOrange)),
                         TextSpan(text: 'Music'),
                       ],
