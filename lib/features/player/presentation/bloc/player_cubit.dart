@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/utils/notification_artwork.dart';
 import '../../../music/domain/entities/song_entity.dart';
 import '../../data/services/audio_player_service.dart' show TrackMetadata;
 import '../../domain/entities/playback_status.dart';
@@ -131,6 +132,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     if (song == null) return;
 
     try {
+      final artUri = await NotificationArtwork.forSong(song.artworkId);
       await _repository.loadAndPlay(
         song.audioUrl,
         TrackMetadata(
@@ -138,6 +140,7 @@ class PlayerCubit extends Cubit<PlayerState> {
           title: song.title,
           artist: song.artist,
           album: song.album,
+          artUri: artUri,
         ),
       );
       await _onPlaybackStarted?.call(song.id);

@@ -14,6 +14,8 @@ Future<void> main() async {
     androidNotificationChannelId: 'com.example.spmusic.channel.audio',
     androidNotificationChannelName: 'spmusic playback',
     androidNotificationOngoing: true,
+    androidNotificationIcon: 'drawable/ic_stat_music',
+    notificationColor: const Color(0xFFFA6E4C),
   );
   await setupInjector();
   runApp(const SpMusicApp());

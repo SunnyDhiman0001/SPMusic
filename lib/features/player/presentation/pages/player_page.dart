@@ -38,12 +38,8 @@ class PlayerPage extends StatelessWidget {
                 ),
               ),
               if (song != null)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: MediaQuery.sizeOf(context).height * 0.55,
-                  child: _BlurredArtworkBackdrop(artworkId: song.artworkId),
+                Positioned.fill(
+                  child: _ArtworkBackdrop(artworkId: song.artworkId, isDark: isDark),
                 ),
               SafeArea(
                 child: Column(
@@ -71,33 +67,85 @@ class PlayerPage extends StatelessWidget {
   }
 }
 
-/// Large blurred album cover that fades out into the Ink Black/Prussian Blue
-/// background gradient, per the Now Playing design brief.
-class _BlurredArtworkBackdrop extends StatelessWidget {
-  const _BlurredArtworkBackdrop({required this.artworkId});
+/// Full-screen ambient backdrop: the album cover heavily blurred and scaled
+/// up, crossfading when the song changes, with a theme-aware scrim so text
+/// and controls stay readable, plus a soft accent glow behind the artwork.
+class _ArtworkBackdrop extends StatelessWidget {
+  const _ArtworkBackdrop({required this.artworkId, required this.isDark});
 
   final int artworkId;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
+    final base = isDark ? AppColors.inkBlack : AppColors.surfaceLight;
+    final size = MediaQuery.sizeOf(context);
+
     return IgnorePointer(
-      child: ShaderMask(
-        shaderCallback: (rect) => const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.transparent],
-          stops: [0.35, 1.0],
-        ).createShader(rect),
-        blendMode: BlendMode.dstIn,
-        child: ClipRect(
-          child: FittedBox(
-            fit: BoxFit.cover,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-              child: LocalArtwork(kind: ArtworkKind.song, id: artworkId, size: 400),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 700),
+            switchInCurve: Curves.easeOut,
+            child: KeyedSubtree(
+              key: ValueKey(artworkId),
+              child: ClipRect(
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50, tileMode: TileMode.clamp),
+                  child: Transform.scale(
+                    scale: 1.6,
+                    child: SizedBox.expand(
+                      child: FittedBox(
+                        fit: BoxFit.cover,
+                        clipBehavior: Clip.hardEdge,
+                        child: LocalArtwork(
+                          kind: ArtworkKind.song,
+                          id: artworkId,
+                          size: 300,
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          // Scrim: keeps the artwork colour visible at the top and settles
+          // into the theme background toward the controls.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  base.withValues(alpha: isDark ? 0.35 : 0.25),
+                  base.withValues(alpha: isDark ? 0.70 : 0.65),
+                  base.withValues(alpha: 0.97),
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+            ),
+          ),
+          // Soft glow behind the rotating artwork.
+          Align(
+            alignment: const Alignment(0, -0.45),
+            child: Container(
+              width: size.width * 0.9,
+              height: size.width * 0.9,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.logoOrange.withValues(alpha: isDark ? 0.18 : 0.14),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
