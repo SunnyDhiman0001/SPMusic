@@ -99,7 +99,8 @@ void main() {
   testWidgets('renders title, artist and play icon once a song is loaded', (tester) async {
     await tester.pumpWidget(_wrap(cubit));
 
-    await cubit.playSingle(testSong);
+    // NotificationArtwork does real file I/O, which needs the real async zone.
+    await tester.runAsync(() => cubit.playSingle(testSong));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

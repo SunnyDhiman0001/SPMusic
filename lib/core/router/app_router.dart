@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/folders/presentation/pages/folder_page.dart';
 import '../../features/home/presentation/pages/main_shell_page.dart';
 import '../../features/player/presentation/pages/player_page.dart';
 import '../../features/playlist/presentation/pages/playlist_page.dart';
@@ -32,6 +33,16 @@ class AppRouter {
       GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
       GoRoute(path: '/home', builder: (context, state) => const MainShellPage()),
       GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
+      GoRoute(
+        path: '/folder',
+        pageBuilder: (context, state) => _fadeSlidePage(
+          FolderPage(
+            folderPath: state.uri.queryParameters['path'] ?? '',
+            folderName: state.uri.queryParameters['name'] ?? 'Folder',
+          ),
+          state,
+        ),
+      ),
       GoRoute(
         path: '/player',
         pageBuilder: (context, state) => _fadeSlidePage(const PlayerPage(), state),

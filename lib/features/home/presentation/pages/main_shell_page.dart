@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
 import '../../../favorites/presentation/pages/favorites_page.dart';
+import '../../../folders/presentation/pages/folders_page.dart';
 import '../../../player/presentation/widgets/mini_player.dart';
 import 'home_page.dart';
 
@@ -15,7 +16,7 @@ class MainShellPage extends StatefulWidget {
 class _MainShellPageState extends State<MainShellPage> {
   int _selectedIndex = 0;
 
-  static const _pages = [HomePage(), FavoritesPage()];
+  static const _pages = [HomePage(), FoldersPage(), FavoritesPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +65,7 @@ class _MainShellPageState extends State<MainShellPage> {
               setState(() => _selectedIndex = index),
           destinations: const [
             NavigationDestination(icon: Icon(LucideIcons.house), label: 'Home'),
+            NavigationDestination(icon: Icon(LucideIcons.folder), label: 'Folders'),
             NavigationDestination(
               icon: Icon(LucideIcons.heart),
               label: 'Favourites',

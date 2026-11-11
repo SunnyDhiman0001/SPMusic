@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_radius.dart';
+import '../../../equalizer/data/services/equalizer_service.dart';
+import '../../../equalizer/presentation/widgets/equalizer_sheet.dart';
 import '../bloc/player_cubit.dart';
 import 'lyrics_sheet.dart';
 import 'queue_sheet.dart';
@@ -47,6 +50,12 @@ class PlayerBottomActions extends StatelessWidget {
           icon: Icon(LucideIcons.captions, color: secondaryColor),
           label: Text('Lyrics', style: TextStyle(color: secondaryColor)),
         ),
+        if (sl<EqualizerService>().isSupported)
+          TextButton.icon(
+            onPressed: () => _openSheet(context, const EqualizerSheet()),
+            icon: Icon(LucideIcons.sliders_vertical, color: secondaryColor),
+            label: Text('EQ', style: TextStyle(color: secondaryColor)),
+          ),
       ],
     );
   }

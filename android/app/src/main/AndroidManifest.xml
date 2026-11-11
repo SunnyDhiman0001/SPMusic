@@ -33,6 +33,7 @@
         </activity>
         <service android:name="com.ryanheise.audioservice.AudioService"
             android:foregroundServiceType="mediaPlayback"
+            android:stopWithTask="false"
             android:exported="true"
             tools:ignore="Instantiatable">
             <intent-filter>

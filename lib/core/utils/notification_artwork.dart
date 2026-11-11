@@ -11,7 +11,20 @@ class NotificationArtwork {
   static final OnAudioQuery _query = OnAudioQuery();
 
   /// Returns a `file://` Uri for the song's artwork, or null if it has none.
-  static Future<Uri?> forSong(int artworkId) async {
+  ///
+  /// The native artwork query handles one request at a time, so rapid song
+  /// changes used to stack up extractions (each reading embedded art out of a
+  /// possibly large file). Requests now run one after another, and one whose
+  /// [isCurrent] has gone false by the time its turn comes is skipped.
+  static Future<Uri?> forSong(int artworkId, {bool Function()? isCurrent}) {
+    final result = _tail.then((_) => (isCurrent?.call() ?? true) ? _extract(artworkId) : null);
+    _tail = result.then<void>((_) {}, onError: (_) {});
+    return result;
+  }
+
+  static Future<void> _tail = Future<void>.value();
+
+  static Future<Uri?> _extract(int artworkId) async {
     try {
       final file = File('${Directory.systemTemp.path}/art_$artworkId.jpg');
       if (await file.exists() && await file.length() > 0) {

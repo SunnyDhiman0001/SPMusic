@@ -51,8 +51,18 @@ class LocalMusicDataSourceImpl implements LocalMusicDataSource {
     final songs = <SongModel>[];
     final songIdsByAlbumId = <String, List<String>>{};
 
+    final seenPaths = <String>{};
     for (final rawSong in rawSongs) {
-      if (rawSong.isMusic == false) continue;
+      // Trust MediaStore's own classification: ringtones, alarms and
+      // notification sounds are not music even if they are audio files.
+      if (rawSong.isMusic == false ||
+          rawSong.isRingtone == true ||
+          rawSong.isAlarm == true ||
+          rawSong.isNotification == true) {
+        continue;
+      }
+      // MediaStore can list one physical file more than once.
+      if (!seenPaths.add(rawSong.data)) continue;
 
       final id = rawSong.id.toString();
       final albumId = rawSong.albumId?.toString() ?? '';
@@ -75,6 +85,8 @@ class LocalMusicDataSourceImpl implements LocalMusicDataSource {
         artworkId: rawSong.id,
         audioUrl: rawSong.uri ?? rawSong.data,
         duration: Duration(milliseconds: rawSong.duration ?? 0),
+        folderPath: _parentDirectory(rawSong.data),
+        fileSize: rawSong.size,
       );
 
       songs.add(song);
@@ -128,6 +140,11 @@ class LocalMusicDataSourceImpl implements LocalMusicDataSource {
     _albums = albums;
     _artists = artists;
     _playlists = playlists;
+  }
+
+  static String _parentDirectory(String filePath) {
+    final index = filePath.lastIndexOf('/');
+    return index <= 0 ? '' : filePath.substring(0, index);
   }
 
   @override

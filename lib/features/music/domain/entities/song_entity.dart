@@ -11,6 +11,8 @@ class SongEntity extends Equatable {
     required this.artworkId,
     required this.audioUrl,
     required this.duration,
+    this.folderPath = '',
+    this.fileSize = 0,
     this.isFavorite = false,
   });
 
@@ -23,6 +25,10 @@ class SongEntity extends Equatable {
   final int artworkId;
   final String audioUrl;
   final Duration duration;
+
+  /// Directory containing the audio file ('' when unknown, e.g. remote URLs).
+  final String folderPath;
+  final int fileSize;
   final bool isFavorite;
 
   SongEntity copyWith({bool? isFavorite}) {
@@ -36,6 +42,8 @@ class SongEntity extends Equatable {
       artworkId: artworkId,
       audioUrl: audioUrl,
       duration: duration,
+      folderPath: folderPath,
+      fileSize: fileSize,
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
@@ -51,6 +59,8 @@ class SongEntity extends Equatable {
         artworkId,
         audioUrl,
         duration,
+        folderPath,
+        fileSize,
         isFavorite,
       ];
 }

@@ -5,6 +5,7 @@ import 'core/di/injector.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_cubit.dart';
+import 'features/equalizer/presentation/bloc/equalizer_cubit.dart';
 import 'features/favorites/presentation/bloc/favorites_cubit.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
 
@@ -13,7 +14,10 @@ Future<void> main() async {
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.example.spmusic.channel.audio',
     androidNotificationChannelName: 'spmusic playback',
-    androidNotificationOngoing: true,
+    // audio_service asserts ongoing == false when the foreground service is
+    // kept alive on pause, so the notification stays swipeable only while paused.
+    androidNotificationOngoing: false,
+    androidStopForegroundOnPause: false,
     androidNotificationIcon: 'drawable/ic_stat_music',
     notificationColor: const Color(0xFFFA6E4C),
   );
@@ -29,6 +33,7 @@ class SpMusicApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<PlayerCubit>.value(value: sl<PlayerCubit>()),
+        BlocProvider<EqualizerCubit>.value(value: sl<EqualizerCubit>()),
         BlocProvider<ThemeModeCubit>.value(value: sl<ThemeModeCubit>()),
         BlocProvider<FavoritesCubit>.value(value: sl<FavoritesCubit>()..load()),
       ],

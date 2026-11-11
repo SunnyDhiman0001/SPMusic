@@ -12,6 +12,7 @@ import 'package:spmusic/features/player/presentation/bloc/player_state.dart';
 
 class FakePlayerRepository implements PlayerRepository {
   final List<String> loadedUrls = [];
+  final Map<String, Completer<void>> loadGates = {};
   final List<Duration> seekedPositions = [];
   int pauseCalls = 0;
   int resumeCalls = 0;
@@ -32,6 +33,8 @@ class FakePlayerRepository implements PlayerRepository {
 
   @override
   Future<void> loadAndPlay(String url, TrackMetadata metadata) async {
+    // Lets a test hold one song's load open to simulate a slow/large file.
+    await loadGates[url]?.future;
     loadedUrls.add(url);
   }
 
@@ -227,5 +230,48 @@ void main() {
         expect(cubit.state.duration, const Duration(minutes: 3));
       },
     );
+
+    test('a slow earlier selection cannot overwrite a newer one', () async {
+      final started = <String>[];
+      final cubit = PlayerCubit(fakeRepository, onPlaybackStarted: (id) async => started.add(id));
+      addTearDown(cubit.close);
+      final gate = fakeRepository.loadGates[songA.audioUrl] = Completer<void>();
+
+      final first = cubit.playSingle(songA); // slow: blocked on the gate
+      await Future<void>.delayed(Duration.zero);
+      await cubit.playSingle(songB); // user picks another song straight away
+
+      expect(cubit.state.currentSong, songB);
+      expect(cubit.state.duration, songB.duration);
+      expect(fakeRepository.loadedUrls, [songB.audioUrl]);
+
+      gate.complete(); // the stale load finishes after the new one
+      await first;
+
+      expect(cubit.state.currentSong, songB);
+      expect(cubit.state.status, isNot(PlaybackStatus.error));
+      expect(started, [songB.id]); // stale request never reports playback
+    });
+
+    test('stale completed/position events during a load do not skip or move state', () async {
+      final cubit = PlayerCubit(fakeRepository);
+      addTearDown(cubit.close);
+      await cubit.playQueue([songA, songB]);
+      final gate = fakeRepository.loadGates[songB.audioUrl] = Completer<void>();
+
+      final loading = cubit.skipNext(); // loading B
+      await Future<void>.delayed(Duration.zero);
+      fakeRepository.emitPosition(const Duration(seconds: 90)); // still A's clock
+      fakeRepository.emitStatus(PlaybackStatus.completed); // A ending
+      await Future<void>.delayed(Duration.zero);
+
+      // B is not shown until the engine has accepted it; A's events are ignored.
+      expect(cubit.state.currentSong, songA);
+      expect(cubit.state.position, Duration.zero);
+      gate.complete();
+      await loading;
+      expect(cubit.state.currentSong, songB);
+      expect(fakeRepository.loadedUrls, [songA.audioUrl, songB.audioUrl]);
+    });
   });
 }

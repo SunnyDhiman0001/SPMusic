@@ -11,6 +11,8 @@ class SongModel extends SongEntity {
     required super.artworkId,
     required super.audioUrl,
     required super.duration,
+    super.folderPath,
+    super.fileSize,
     super.isFavorite,
   });
 }
