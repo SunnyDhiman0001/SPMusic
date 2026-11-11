@@ -14,6 +14,14 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
 
+// Play Console rejects any versionCode it has already seen, so the code is
+// generated per build instead of being copied from pubspec's "+N" (which must
+// be bumped by hand). It is minutes since 2025-01-01 UTC: always increasing,
+// unique for every build, and far below Play's 2,100,000,000 limit.
+// Set the VERSION_CODE environment variable to force a specific value.
+val autoVersionCode: Int = System.getenv("VERSION_CODE")?.toIntOrNull()
+    ?: ((System.currentTimeMillis() - 1_735_689_600_000L) / 60_000L).toInt()
+
 android {
     namespace = "com.example.spmusic"
     compileSdk = 36
@@ -28,7 +36,7 @@ android {
         applicationId = "com.spmusic.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
+        versionCode = autoVersionCode
         versionName = flutter.versionName
     }
 
