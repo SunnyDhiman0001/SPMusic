@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/entrance.dart';
+import '../../../../core/widgets/glass_card.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/permission_denied_view.dart';
 import '../../../music/data/services/music_permission_service.dart';
 import '../../domain/entities/folder_entity.dart';
@@ -32,6 +35,7 @@ class _FoldersView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: Text('Folders', style: theme.textTheme.headlineMedium)),
       body: SafeArea(
         child: BlocBuilder<FoldersCubit, FoldersState>(
@@ -71,7 +75,10 @@ class _FoldersView extends StatelessWidget {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
                     itemCount: folders.length,
-                    itemBuilder: (context, index) => _FolderTile(folder: folders[index]),
+                    itemBuilder: (context, index) => Entrance(
+                      index: index,
+                      child: _FolderTile(folder: folders[index]),
+                    ),
                   ),
                 ),
             };
@@ -94,33 +101,41 @@ class _FolderTile extends StatelessWidget {
     final hint = folder.isExcluded
         ? (folder.isSuggestedExclusion ? ' · Hidden (messaging/voice audio)' : ' · Hidden')
         : '';
+    final tile = ListTile(
+      onTap: () => context.push(
+        '/folder?path=${Uri.encodeQueryComponent(folder.path)}&name=${Uri.encodeQueryComponent(folder.name)}',
+      ),
+      leading: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.12),
+          borderRadius: AppRadius.smRadius,
+        ),
+        child: Icon(LucideIcons.folder, color: theme.colorScheme.primary),
+      ),
+      title: Text(folder.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        '$countLabel$hint\n${folder.displayPath}',
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      isThreeLine: true,
+      trailing: IconButton(
+        tooltip: folder.isExcluded ? 'Show in library' : 'Hide from library',
+        icon: Icon(folder.isExcluded ? LucideIcons.eye_off : LucideIcons.eye),
+        onPressed: () =>
+            context.read<FoldersCubit>().setExcluded(folder, excluded: !folder.isExcluded),
+      ),
+    );
+
     return Opacity(
       opacity: folder.isExcluded ? 0.55 : 1,
-      child: ListTile(
-        onTap: () => context.push(
-          '/folder?path=${Uri.encodeQueryComponent(folder.path)}&name=${Uri.encodeQueryComponent(folder.name)}',
-        ),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: AppRadius.smRadius,
-          ),
-          child: Icon(LucideIcons.folder, color: theme.colorScheme.primary),
-        ),
-        title: Text(folder.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text(
-          '$countLabel$hint\n${folder.displayPath}',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        isThreeLine: true,
-        trailing: IconButton(
-          tooltip: folder.isExcluded ? 'Show in library' : 'Hide from library',
-          icon: Icon(folder.isExcluded ? LucideIcons.eye_off : LucideIcons.eye),
-          onPressed: () =>
-              context.read<FoldersCubit>().setExcluded(folder, excluded: !folder.isExcluded),
+      child: Pressable(
+        pressedScale: 0.98,
+        child: GlassCard(
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+          child: tile,
         ),
       ),
     );

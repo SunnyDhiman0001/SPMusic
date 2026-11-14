@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_background.dart';
 
 class SplashPage extends HookWidget {
   const SplashPage({super.key});
@@ -34,19 +35,11 @@ class SplashPage extends HookWidget {
       return navigationTimer.cancel;
     }, const []);
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isDark
-                ? AppColors.darkBackgroundGradient
-                : AppColors.lightBackgroundGradient,
-          ),
-        ),
+      // Obsidian with the coral top glow (AppBackground).
+      body: AppBackground(
         child: Center(
           child: FadeTransition(
             opacity: opacity,
@@ -62,7 +55,7 @@ class SplashPage extends HookWidget {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.5),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.5),
                           blurRadius: 40,
                           spreadRadius: 8,
                         ),
@@ -77,9 +70,7 @@ class SplashPage extends HookWidget {
                   Text.rich(
                     TextSpan(
                       style: TextStyle(
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight,
+                        color: theme.colorScheme.onSurface,
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,

@@ -25,24 +25,22 @@ class AppColors {
 
   static const Color white = alabasterGrey;
 
-  // Semantic aliases used across the app's light theme — built from the same
-  // "Dusk" palette so light mode reads as the same brand, not a different one.
-  // A soft, cool-tinted off-white (not the beige-ish alabasterGrey) so white
-  // cards actually pop off the background instead of blending into it.
-  static const Color surfaceLight = Color(0xFFEEF1F5);
-  static const Color cardLight = Color(0xFFFFFFFF);
-  static const Color textPrimaryLight = inkBlack;
-  // Deepened past lavenderGrey for real contrast on a light background —
-  // lavenderGrey alone reads washed-out on white.
-  static const Color textSecondaryLight = Color(0xFF54697F);
-
   static const Color error = Color(0xFFFF5470);
 
-  /// Fixed brand accent from the app logo (the equalizer bars/play triangle).
-  /// Intentionally the same in light and dark mode — it's the logo's color,
-  /// not a theme-derived one.
+  /// Fixed brand accent from the app logo (the equalizer bars/play triangle):
+  /// the logo's own color, not a theme-derived one.
   static const Color logoOrange = Color(0xFFFA6E4C);
 
-  static const List<Color> darkBackgroundGradient = [inkBlack, prussianBlue];
-  static const List<Color> lightBackgroundGradient = [Color(0xFFFFFFFF), surfaceLight];
+  // Orange/black "glass" palette: the app's only theme.
+  static const Color obsidian = Color(0xFF090A0C);
+  static const Color surfaceSolid = Color(0xFF181A20);
+  static const Color glassSurface = Color(0xBF181A20); // 75% opacity
+  static const Color glassBorder = Color(0x1FFFFFFF); // 12% white
+  static const Color coral = Color(0xFFFF6B4A);
+  static const Color tangerineStart = Color(0xFFFF8F6B);
+  static const Color tangerineEnd = Color(0xFFFF5733);
+  static const Color mutedGrey = Color(0xFF9499A6);
+  static const Color navPillFill = Color(0xFF1E2028);
+
+  static const List<Color> darkBackgroundGradient = [obsidian, Color(0xFF0E1015)];
 }

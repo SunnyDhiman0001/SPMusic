@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../../../core/theme/app_decor.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -25,13 +26,14 @@ class SearchInputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderColor = focusNode.hasFocus ? theme.colorScheme.primary : Colors.transparent;
+    final decor = context.decor;
+    final borderColor = focusNode.hasFocus ? theme.colorScheme.primary : decor.glassBorder;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: decor.glassSurface,
         borderRadius: AppRadius.roundRadius,
         border: Border.all(color: borderColor, width: 1.5),
       ),

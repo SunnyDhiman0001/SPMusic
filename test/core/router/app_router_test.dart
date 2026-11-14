@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spmusic/core/di/injector.dart';
 import 'package:spmusic/core/router/app_router.dart';
 import 'package:spmusic/core/theme/app_theme.dart';
-import 'package:spmusic/core/theme/theme_mode_cubit.dart';
 import 'package:spmusic/features/favorites/presentation/bloc/favorites_cubit.dart';
 import 'package:spmusic/features/home/presentation/pages/main_shell_page.dart';
 import 'package:spmusic/features/music/data/datasources/local_music_data_source.dart';
@@ -64,12 +63,10 @@ void main() {
       MultiBlocProvider(
         providers: [
           BlocProvider<PlayerCubit>.value(value: sl<PlayerCubit>()),
-          BlocProvider<ThemeModeCubit>.value(value: sl<ThemeModeCubit>()),
           BlocProvider<FavoritesCubit>.value(value: sl<FavoritesCubit>()..load()),
         ],
         child: MaterialApp.router(
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
+          theme: AppTheme.dark,
           routerConfig: AppRouter.router,
         ),
       ),
