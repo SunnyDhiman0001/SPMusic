@@ -8,6 +8,7 @@ import '../../features/folders/domain/repositories/folder_repository.dart';
 import '../../features/folders/presentation/bloc/folders_cubit.dart';
 import '../../features/favorites/presentation/bloc/favorites_cubit.dart';
 import '../../features/home/presentation/bloc/home_cubit.dart';
+import '../../features/home/presentation/bloc/recently_played_cubit.dart';
 import '../../features/music/data/datasources/local_music_data_source.dart';
 import '../../features/music/data/repositories/music_repository_impl.dart';
 import '../../features/music/data/services/local_storage_service.dart';
@@ -20,7 +21,6 @@ import '../../features/player/domain/repositories/player_repository.dart';
 import '../../features/player/presentation/bloc/player_cubit.dart';
 import '../../features/playlist/presentation/bloc/playlist_cubit.dart';
 import '../../features/search/presentation/bloc/search_cubit.dart';
-import '../theme/theme_mode_cubit.dart';
 import '../utils/library_change_notifier.dart';
 
 final GetIt sl = GetIt.instance;
@@ -30,7 +30,6 @@ Future<void> setupInjector() async {
   sl.registerLazySingleton<SharedPreferences>(() => prefs);
   sl.registerLazySingleton<LocalStorageService>(() => LocalStorageServiceImpl(sl()));
   sl.registerLazySingleton<MusicPermissionService>(() => MusicPermissionServiceImpl());
-  sl.registerLazySingleton<ThemeModeCubit>(() => ThemeModeCubit(sl()));
 
   sl.registerLazySingleton<LocalMusicDataSource>(() => LocalMusicDataSourceImpl());
   sl.registerLazySingleton<LibraryChangeNotifier>(() => LibraryChangeNotifier());
@@ -60,8 +59,12 @@ Future<void> setupInjector() async {
   sl.registerLazySingleton<EqualizerService>(() => sl<JustAudioPlayerService>());
   sl.registerLazySingleton<EqualizerCubit>(() => EqualizerCubit(sl(), sl()));
   sl.registerLazySingleton<PlayerRepository>(() => PlayerRepositoryImpl(sl()));
+  // One shared instance: playback reports song starts here and Home renders it.
+  sl.registerLazySingleton<RecentlyPlayedCubit>(
+    () => RecentlyPlayedCubit(sl(), libraryChanges: sl<LibraryChangeNotifier>().changes),
+  );
   sl.registerLazySingleton<PlayerCubit>(
-    () => PlayerCubit(sl(), onPlaybackStarted: sl<MusicRepository>().recordPlayed),
+    () => PlayerCubit(sl(), onPlaybackStarted: sl<RecentlyPlayedCubit>().onSongStarted),
   );
 
   sl.registerFactory<SearchCubit>(() => SearchCubit(sl()));

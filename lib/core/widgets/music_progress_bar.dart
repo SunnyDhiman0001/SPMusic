@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_decor.dart';
 import '../theme/app_spacing.dart';
 
 class MusicProgressBar extends StatefulWidget {
@@ -29,6 +29,7 @@ class _MusicProgressBarState extends State<MusicProgressBar> {
 
   @override
   Widget build(BuildContext context) {
+    final decor = context.decor;
     final totalMs = widget.duration.inMilliseconds.clamp(1, double.maxFinite.toInt());
     final currentMs =
         _dragValue ?? widget.position.inMilliseconds.toDouble().clamp(0, totalMs.toDouble());
@@ -39,10 +40,10 @@ class _MusicProgressBarState extends State<MusicProgressBar> {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 4,
-            activeTrackColor: AppColors.duskBlue,
-            inactiveTrackColor: AppColors.lavenderGrey.withValues(alpha: 0.25),
-            thumbColor: AppColors.alabasterGrey,
-            overlayColor: AppColors.duskBlue.withValues(alpha: 0.2),
+            activeTrackColor: decor.progressActive,
+            inactiveTrackColor: decor.progressInactive,
+            thumbColor: decor.progressThumb,
+            overlayColor: decor.progressActive.withValues(alpha: 0.2),
             trackShape: const RoundedRectSliderTrackShape(),
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),

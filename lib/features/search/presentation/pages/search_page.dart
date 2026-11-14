@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../../../core/di/injector.dart';
+import '../../../../core/widgets/app_background.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/card_display_item.dart';
 import '../../../../core/widgets/horizontal_card_list.dart';
@@ -14,6 +15,7 @@ import '../../../music/domain/entities/album_entity.dart';
 import '../../../music/domain/entities/artist_entity.dart';
 import '../../../music/domain/entities/playlist_entity.dart';
 import '../../../player/presentation/bloc/player_cubit.dart';
+import '../../../player/presentation/widgets/now_playing_tile_builder.dart';
 import '../bloc/search_cubit.dart';
 import '../bloc/search_state.dart';
 import '../widgets/recent_searches_list.dart';
@@ -93,7 +95,9 @@ class _SearchView extends HookWidget {
       search('');
     }
 
-    return Scaffold(
+    return AppBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -127,6 +131,7 @@ class _SearchView extends HookWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -143,9 +148,14 @@ class _SearchResultsList extends StatelessWidget {
         if (results.songs.isNotEmpty) ...[
           const SectionHeader(title: 'Songs'),
           for (var i = 0; i < results.songs.length; i++)
-            SearchSongTile(
-              song: results.songs[i],
-              onTap: () => context.read<PlayerCubit>().playSingle(results.songs[i]),
+            NowPlayingTileBuilder(
+              songId: results.songs[i].id,
+              builder: (context, isCurrent, isPlaying) => SearchSongTile(
+                song: results.songs[i],
+                isCurrent: isCurrent,
+                isPlaying: isPlaying,
+                onTap: () => context.read<PlayerCubit>().playSingle(results.songs[i]),
+              ),
             ).animate().fadeIn(delay: (30 * i).ms, duration: 200.ms),
           const SizedBox(height: AppSpacing.md),
         ],

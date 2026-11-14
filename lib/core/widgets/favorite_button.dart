@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
+import '../theme/app_decor.dart';
+
 class FavoriteButton extends StatelessWidget {
   const FavoriteButton({
     required this.isFavorite,
@@ -21,7 +23,7 @@ class FavoriteButton extends StatelessWidget {
       onTap: onTap,
       child: Icon(
         LucideIcons.heart,
-        color: isFavorite ? theme.colorScheme.error : theme.colorScheme.onSurface,
+        color: isFavorite ? context.decor.favorite : theme.colorScheme.onSurface,
         size: size,
       )
           .animate(key: ValueKey<bool>(isFavorite))

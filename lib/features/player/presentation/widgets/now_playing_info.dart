@@ -20,7 +20,17 @@ class NowPlayingInfo extends StatelessWidget {
     final theme = Theme.of(context);
     return GestureDetector(
       onDoubleTap: onToggleFavorite,
-      child: Column(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 280),
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(animation),
+            child: child,
+          ),
+        ),
+        child: Column(
+        key: ValueKey(song.id),
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -45,6 +55,7 @@ class NowPlayingInfo extends StatelessWidget {
             style: theme.textTheme.bodySmall,
           ),
         ],
+        ),
       ),
     );
   }

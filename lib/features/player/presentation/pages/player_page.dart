@@ -21,25 +21,22 @@ class PlayerPage extends StatelessWidget {
       body: BlocSelector<PlayerCubit, PlayerState, SongEntity?>(
         selector: (state) => state.currentSong,
         builder: (context, song) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
           return Stack(
             children: [
-              Positioned.fill(
+              const Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: isDark
-                          ? AppColors.darkBackgroundGradient
-                          : AppColors.lightBackgroundGradient,
+                      colors: AppColors.darkBackgroundGradient,
                     ),
                   ),
                 ),
               ),
               if (song != null)
                 Positioned.fill(
-                  child: _ArtworkBackdrop(artworkId: song.artworkId, isDark: isDark),
+                  child: _ArtworkBackdrop(artworkId: song.artworkId),
                 ),
               SafeArea(
                 child: Column(
@@ -68,17 +65,16 @@ class PlayerPage extends StatelessWidget {
 }
 
 /// Full-screen ambient backdrop: the album cover heavily blurred and scaled
-/// up, crossfading when the song changes, with a theme-aware scrim so text
-/// and controls stay readable, plus a soft accent glow behind the artwork.
+/// up, crossfading when the song changes, with a dark scrim so text and
+/// controls stay readable, plus a soft accent glow behind the artwork.
 class _ArtworkBackdrop extends StatelessWidget {
-  const _ArtworkBackdrop({required this.artworkId, required this.isDark});
+  const _ArtworkBackdrop({required this.artworkId});
 
   final int artworkId;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final base = isDark ? AppColors.inkBlack : AppColors.surfaceLight;
+    const base = AppColors.obsidian;
     final size = MediaQuery.sizeOf(context);
 
     return IgnorePointer(
@@ -120,8 +116,8 @@ class _ArtworkBackdrop extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  base.withValues(alpha: isDark ? 0.35 : 0.25),
-                  base.withValues(alpha: isDark ? 0.70 : 0.65),
+                  base.withValues(alpha: 0.35),
+                  base.withValues(alpha: 0.70),
                   base.withValues(alpha: 0.97),
                 ],
                 stops: const [0.0, 0.5, 1.0],
@@ -138,7 +134,7 @@ class _ArtworkBackdrop extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.logoOrange.withValues(alpha: isDark ? 0.18 : 0.14),
+                    AppColors.coral.withValues(alpha: 0.22),
                     Colors.transparent,
                   ],
                 ),

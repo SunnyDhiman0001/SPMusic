@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/entrance.dart';
 import '../../../../core/widgets/favorite_button.dart';
 import '../../../player/presentation/bloc/player_cubit.dart';
+import '../../../player/presentation/widgets/now_playing_tile_builder.dart';
 import '../../../search/presentation/widgets/search_song_tile.dart';
 import '../bloc/favorites_cubit.dart';
 import '../bloc/favorites_state.dart';
@@ -14,6 +15,7 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('Favourites', style: Theme.of(context).textTheme.headlineMedium),
       ),
@@ -51,15 +53,22 @@ class FavoritesPage extends StatelessWidget {
                     itemCount: songs.length,
                     itemBuilder: (context, index) {
                       final song = songs[index];
-                      return SearchSongTile(
-                        song: song,
-                        leadingBorderRadius: AppRadius.roundRadius,
-                        onTap: () =>
-                            context.read<PlayerCubit>().playQueue(songs, startIndex: index),
-                        trailing: FavoriteButton(
-                          isFavorite: true,
-                          size: 24,
-                          onTap: () => context.read<FavoritesCubit>().toggleFavorite(song.id),
+                      return Entrance(
+                        index: index,
+                        child: NowPlayingTileBuilder(
+                        songId: song.id,
+                        builder: (context, isCurrent, isPlaying) => SearchSongTile(
+                          song: song,
+                          isCurrent: isCurrent,
+                          isPlaying: isPlaying,
+                          onTap: () =>
+                              context.read<PlayerCubit>().playQueue(songs, startIndex: index),
+                          trailing: FavoriteButton(
+                            isFavorite: true,
+                            size: 24,
+                            onTap: () => context.read<FavoritesCubit>().toggleFavorite(song.id),
+                          ),
+                        ),
                         ),
                       );
                     },

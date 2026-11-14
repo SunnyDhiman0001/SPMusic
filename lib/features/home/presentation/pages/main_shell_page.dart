@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
+import '../../../../core/widgets/app_background.dart';
+import '../../../../core/widgets/app_nav_bar.dart';
 import '../../../favorites/presentation/pages/favorites_page.dart';
 import '../../../folders/presentation/pages/folders_page.dart';
+import '../../../player/presentation/bloc/player_cubit.dart';
 import '../../../player/presentation/widgets/mini_player.dart';
 import 'home_page.dart';
 
@@ -13,65 +17,72 @@ class MainShellPage extends StatefulWidget {
   State<MainShellPage> createState() => _MainShellPageState();
 }
 
-class _MainShellPageState extends State<MainShellPage> {
-  int _selectedIndex = 0;
+class _MainShellPageState extends State<MainShellPage> with SingleTickerProviderStateMixin {
+  /// Space the floating mini-player occupies at the bottom of the pages
+  /// (card height plus its vertical margins).
+  static const double _miniPlayerInset = 84;
 
   static const _pages = [HomePage(), FoldersPage(), FavoritesPage()];
 
+  static const _navItems = [
+    AppNavItem(icon: LucideIcons.house, label: 'Home'),
+    AppNavItem(icon: LucideIcons.folder, label: 'Folders'),
+    AppNavItem(icon: LucideIcons.heart, label: 'Favourites'),
+  ];
+
+  int _selectedIndex = 0;
+
+  // Brief fade when switching tabs. The pages stay mounted in the IndexedStack
+  // (so their state survives); only the fade is replayed.
+  late final AnimationController _tabFade = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 220),
+    value: 1,
+  );
+
+  @override
+  void dispose() {
+    _tabFade.dispose();
+    super.dispose();
+  }
+
+  void _selectTab(int index) {
+    if (index == _selectedIndex) return;
+    setState(() => _selectedIndex = index);
+    _tabFade.forward(from: 0);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    // Icon/label color never changes with selection — only the pill behind
-    // the selected icon does. Dark mode keeps white text/icons throughout;
-    // light mode keeps whatever color the unselected tabs already used.
-    final tabColor = isDark
-        ? theme.colorScheme.onSurface
-        : theme.colorScheme.onSurfaceVariant;
-    final selectedIndicatorColor = theme.colorScheme.primary;
+    final hasSong = context.select((PlayerCubit cubit) => cubit.state.currentSong != null);
+    final mediaQuery = MediaQuery.of(context);
 
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: IndexedStack(index: _selectedIndex, children: _pages),
-          ),
-          const MiniPlayer(),
-        ],
-      ),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          // The selected icon sits inside a solid primary-colored pill, so
-          // it needs a light/white color to stay legible. The label sits
-          // below the pill on the plain nav bar background, so it always
-          // uses the same tabColor regardless of selection.
-          iconTheme: WidgetStateProperty.resolveWith(
-            (states) => IconThemeData(
-              color: states.contains(WidgetState.selected)
-                  ? theme.colorScheme.onPrimary
-                  : tabColor,
+      // The mini-player floats over the pages so its backdrop blur shows the
+      // list scrolling behind it. Pages keep their content clear of it by
+      // honouring the bottom padding (they all use SafeArea(bottom: true)).
+      body: AppBackground(
+        child: Stack(
+          children: [
+            MediaQuery(
+              data: mediaQuery.copyWith(
+                padding: mediaQuery.padding.copyWith(
+                  bottom: mediaQuery.padding.bottom + (hasSong ? _miniPlayerInset : 0),
+                ),
+              ),
+              child: FadeTransition(
+                opacity: CurvedAnimation(parent: _tabFade, curve: Curves.easeOut),
+                child: IndexedStack(index: _selectedIndex, children: _pages),
+              ),
             ),
-          ),
-          labelTextStyle: WidgetStatePropertyAll(
-            theme.textTheme.labelSmall?.copyWith(color: tabColor),
-          ),
-        ),
-        child: NavigationBar(
-          backgroundColor: theme.cardColor,
-          indicatorColor: selectedIndicatorColor,
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: (index) =>
-              setState(() => _selectedIndex = index),
-          destinations: const [
-            NavigationDestination(icon: Icon(LucideIcons.house), label: 'Home'),
-            NavigationDestination(icon: Icon(LucideIcons.folder), label: 'Folders'),
-            NavigationDestination(
-              icon: Icon(LucideIcons.heart),
-              label: 'Favourites',
-            ),
+            const Positioned(left: 0, right: 0, bottom: 0, child: MiniPlayer()),
           ],
         ),
+      ),
+      bottomNavigationBar: AppNavBar(
+        items: _navItems,
+        selectedIndex: _selectedIndex,
+        onSelected: _selectTab,
       ),
     );
   }

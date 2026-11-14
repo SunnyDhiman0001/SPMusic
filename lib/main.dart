@@ -4,7 +4,6 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'core/di/injector.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'core/theme/theme_mode_cubit.dart';
 import 'features/equalizer/presentation/bloc/equalizer_cubit.dart';
 import 'features/favorites/presentation/bloc/favorites_cubit.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
@@ -34,18 +33,13 @@ class SpMusicApp extends StatelessWidget {
       providers: [
         BlocProvider<PlayerCubit>.value(value: sl<PlayerCubit>()),
         BlocProvider<EqualizerCubit>.value(value: sl<EqualizerCubit>()),
-        BlocProvider<ThemeModeCubit>.value(value: sl<ThemeModeCubit>()),
         BlocProvider<FavoritesCubit>.value(value: sl<FavoritesCubit>()..load()),
       ],
-      child: BlocBuilder<ThemeModeCubit, ThemeMode>(
-        builder: (context, themeMode) => MaterialApp.router(
-          title: 'spmusic',
-          debugShowCheckedModeBanner: false,
-          themeMode: themeMode,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          routerConfig: AppRouter.router,
-        ),
+      child: MaterialApp.router(
+        title: 'spmusic',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.dark,
+        routerConfig: AppRouter.router,
       ),
     );
   }

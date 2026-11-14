@@ -41,6 +41,8 @@ class FakePlayerRepository implements PlayerRepository {
   @override
   Future<void> stop() async {}
 
+  void emitPosition(Duration position) => _positionController.add(position);
+
   Future<void> dispose() async {
     await _positionController.close();
     await _durationController.close();
@@ -60,7 +62,7 @@ const testSong = SongEntity(
   duration: Duration(minutes: 3),
 );
 
-Widget _wrap(PlayerCubit cubit) {
+Widget _wrap(PlayerCubit cubit, {ThemeData? theme}) {
   final router = GoRouter(
     initialLocation: '/',
     routes: [
@@ -70,7 +72,7 @@ Widget _wrap(PlayerCubit cubit) {
   );
   return BlocProvider<PlayerCubit>.value(
     value: cubit,
-    child: MaterialApp.router(routerConfig: router),
+    child: MaterialApp.router(theme: theme, routerConfig: router),
   );
 }
 
@@ -107,5 +109,37 @@ void main() {
     expect(find.text(testSong.title), findsOneWidget);
     expect(find.text(testSong.artist), findsOneWidget);
     expect(find.byIcon(LucideIcons.play), findsOneWidget);
+  });
+
+  testWidgets('dark theme: frosted card with a top progress bar', (tester) async {
+    await tester.pumpWidget(_wrap(cubit, theme: ThemeData(brightness: Brightness.dark)));
+    await tester.runAsync(() => cubit.playSingle(testSong));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byType(BackdropFilter), findsOneWidget);
+    expect(find.byKey(const ValueKey('mini-player-progress')), findsOneWidget);
+    expect(find.text(testSong.title), findsOneWidget);
+  });
+
+  testWidgets('dark theme: the progress fill is visible and tracks playback position', (tester) async {
+    await tester.pumpWidget(_wrap(cubit, theme: ThemeData(brightness: Brightness.dark)));
+    await tester.runAsync(() async {
+      await cubit.playSingle(testSong); // testSong lasts 3 minutes
+      fakeRepository.emitPosition(const Duration(seconds: 90)); // halfway
+      await Future<void>.delayed(Duration.zero);
+    });
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final boxes = find.descendant(
+      of: find.byKey(const ValueKey('mini-player-progress')),
+      matching: find.byType(ColoredBox),
+    );
+    final track = tester.getSize(boxes.first);
+    final fill = tester.getSize(boxes.last);
+
+    expect(fill.height, 2, reason: 'the fill must have height, not collapse to zero');
+    expect(fill.width, closeTo(track.width / 2, 1));
   });
 }

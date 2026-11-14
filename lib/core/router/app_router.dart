@@ -31,8 +31,14 @@ class AppRouter {
     initialLocation: '/splash',
     routes: [
       GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
-      GoRoute(path: '/home', builder: (context, state) => const MainShellPage()),
-      GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
+      GoRoute(
+        path: '/home',
+        pageBuilder: (context, state) => _fadeSlidePage(const MainShellPage(), state),
+      ),
+      GoRoute(
+        path: '/search',
+        pageBuilder: (context, state) => _fadeSlidePage(const SearchPage(), state),
+      ),
       GoRoute(
         path: '/folder',
         pageBuilder: (context, state) => _fadeSlidePage(

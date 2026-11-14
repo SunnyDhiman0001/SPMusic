@@ -57,6 +57,8 @@ class QueueSheet extends StatelessWidget {
                             song: queue[index],
                             leadingBorderRadius: AppRadius.smRadius,
                             selected: isCurrent,
+                            isCurrent: isCurrent,
+                            isPlaying: state.isPlaying,
                             selectedTileColor: theme.colorScheme.primary.withValues(alpha: 0.08),
                             trailing: isCurrent
                                 ? Icon(LucideIcons.audio_waveform, color: theme.colorScheme.primary)
