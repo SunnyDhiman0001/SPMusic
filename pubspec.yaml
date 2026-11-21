@@ -42,7 +42,7 @@ dependencies:
   flutter_animate: ^4.5.2
   shared_preferences: ^2.3.4
   on_audio_query_forked: ^2.9.1
-  just_audio_background: ^0.0.1-beta.14
+  audio_service: ^0.18.19
   permission_handler: ^11.3.1
   google_fonts: ^6.2.1
   flutter_lucide: ^1.4.0

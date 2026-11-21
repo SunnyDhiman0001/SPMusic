@@ -1,20 +1,27 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:ui' show Color;
 
+import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:just_audio_background/just_audio_background.dart';
 
 import '../../../equalizer/data/services/equalizer_service.dart';
 import '../../../equalizer/domain/entities/equalizer_band.dart';
 import '../../domain/entities/playback_status.dart';
 import '../../domain/entities/repeat_mode.dart';
 import 'audio_player_service.dart';
+import 'sp_audio_handler.dart';
 
-/// The only file in this project allowed to touch `package:just_audio`
-/// directly. Everything else depends on [AudioPlayerService].
+/// With [SpAudioHandler], the only code in this project allowed to touch
+/// `package:just_audio` directly. Everything else depends on
+/// [AudioPlayerService].
 class JustAudioPlayerService
-    implements AudioPlayerService, BackgroundAudioPlayerService, EqualizerService {
+    implements
+        AudioPlayerService,
+        BackgroundAudioPlayerService,
+        EqualizerService,
+        MediaSessionService {
   JustAudioPlayerService() : this._(Platform.isAndroid ? ja.AndroidEqualizer() : null);
 
   JustAudioPlayerService._(this._equalizer)
@@ -26,6 +33,29 @@ class JustAudioPlayerService
 
   final ja.AudioPlayer _player;
   final ja.AndroidEqualizer? _equalizer;
+  SpAudioHandler? _handler;
+
+  @override
+  Future<void> initMediaSession(MediaSessionDelegate delegate) async {
+    if (_handler != null) return;
+    _handler = await AudioService.init(
+      builder: () => SpAudioHandler(_player)..delegate = delegate,
+      config: const AudioServiceConfig(
+        androidNotificationChannelId: 'dev.sunny.spmusic.channel.audio',
+        androidNotificationChannelName: 'spmusic playback',
+        androidNotificationIcon: 'drawable/ic_stat_music',
+        // audio_service asserts ongoing == false when the foreground service
+        // is kept alive on pause.
+        androidNotificationOngoing: false,
+        androidStopForegroundOnPause: false,
+        notificationColor: Color(0xFFFA6E4C),
+      ),
+    );
+  }
+
+  @override
+  void updateSession({required bool isShuffle, required bool isFavorite}) =>
+      _handler?.updateButtons(isShuffle: isShuffle, isFavorite: isFavorite);
 
   @override
   bool get isSupported => _equalizer != null;
@@ -111,6 +141,7 @@ class JustAudioPlayerService
         artist: metadata.artist,
         album: metadata.album,
         artUri: metadata.artUri,
+        duration: metadata.duration,
       ),
     );
   }

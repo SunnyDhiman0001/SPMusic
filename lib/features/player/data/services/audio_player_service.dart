@@ -8,6 +8,7 @@ class TrackMetadata {
     required this.artist,
     required this.album,
     this.artUri,
+    this.duration,
   });
 
   final String id;
@@ -15,6 +16,7 @@ class TrackMetadata {
   final String artist;
   final String album;
   final Uri? artUri;
+  final Duration? duration;
 }
 
 class AudioQueueItem {
@@ -45,4 +47,22 @@ abstract interface class BackgroundAudioPlayerService {
   Future<void> loadQueue(List<AudioQueueItem> queue, {required int initialIndex});
   Future<void> setShuffleEnabled(bool enabled);
   Future<void> setRepeatMode(RepeatMode mode);
+}
+
+/// Actions the system media notification / lock screen can trigger. The
+/// player cubit owns queue, shuffle and favourites, so the media session
+/// delegates to it instead of keeping a second copy of that logic.
+abstract interface class MediaSessionDelegate {
+  Future<void> onSkipNext();
+  Future<void> onSkipPrevious();
+  Future<void> onToggleFavorite();
+  Future<void> onToggleShuffle();
+}
+
+/// Owns the single system media session (notification + lock screen).
+abstract interface class MediaSessionService {
+  Future<void> initMediaSession(MediaSessionDelegate delegate);
+
+  /// Updates the like / shuffle buttons shown on the media notification.
+  void updateSession({required bool isShuffle, required bool isFavorite});
 }

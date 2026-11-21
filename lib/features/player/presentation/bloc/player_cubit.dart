@@ -203,6 +203,7 @@ class PlayerCubit extends Cubit<PlayerState> {
             artist: queuedSong.artist,
             album: queuedSong.album,
             artUri: queueIndex == index ? artUri : null,
+            duration: queuedSong.duration,
           ),
         );
       }).toList(growable: false);
